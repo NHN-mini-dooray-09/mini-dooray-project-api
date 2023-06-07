@@ -3,18 +3,17 @@ GET localhost:8080/projects/all
 
 
 ### 프로젝트 등록
-POST localhost:8080/projects
+POST localhost:8080/projects?member-seq=1
 Content-Type: application/json
 
 {
   "projectName": "project1",
   "projectStatus":"활성",
-  "memberSeq":1,
   "projectDescription":"이 프로젝트는 테스트 프로젝트 입니다."
 }
 
 ### 프로젝트 수정
-PATCH localhost:8080/projects/1
+PATCH localhost:8080/projects/1?member-seq=1
 Content-Type: application/json
 
 {
@@ -24,5 +23,13 @@ Content-Type: application/json
 
 
 ### 프로젝트 조회
-GET localhost:8080/projects/1
+GET localhost:8080/projects/1?member-seq=1
 
+
+### 프로젝트 맴버 등록
+POST localhost:8080/projects/1/members?member-seq=1
+Content-Type: application/json
+
+{
+  "projectMembers": [2,3]
+}

@@ -1,13 +1,14 @@
 package com.nhnacademy.minidoorayprojectapi.domain.project.service;
 
+import com.nhnacademy.minidoorayprojectapi.domain.project.dao.ProjectAuthoritiesRepository;
 import com.nhnacademy.minidoorayprojectapi.domain.project.dao.ProjectRepository;
+import com.nhnacademy.minidoorayprojectapi.domain.project.dto.request.ProjectAuthoritiesResisterRequestDto;
 import com.nhnacademy.minidoorayprojectapi.domain.project.dto.request.ProjectCreateRequestDto;
 import com.nhnacademy.minidoorayprojectapi.domain.project.dto.request.ProjectUpdateRequestDto;
-import com.nhnacademy.minidoorayprojectapi.domain.project.dto.response.ProjectDto;
-import com.nhnacademy.minidoorayprojectapi.domain.project.dto.response.ProjectMemberSeqDto;
-import com.nhnacademy.minidoorayprojectapi.domain.project.dto.response.ProjectSeqDto;
-import com.nhnacademy.minidoorayprojectapi.domain.project.dto.response.ProjectSeqNameDto;
+import com.nhnacademy.minidoorayprojectapi.domain.project.dto.response.*;
 import com.nhnacademy.minidoorayprojectapi.domain.project.entity.Project;
+import com.nhnacademy.minidoorayprojectapi.domain.project.entity.ProjectAuthorities;
+import com.nhnacademy.minidoorayprojectapi.domain.project.exception.ProjectPermissionDeniedException;
 import com.nhnacademy.minidoorayprojectapi.domain.project.exception.ProjectNotFoundException;
 import com.nhnacademy.minidoorayprojectapi.domain.tag.dto.TagSeqNameDto;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class ProjectService {
     private final ProjectRepository projectRepository;
+    private final ProjectAuthoritiesRepository projectAuthoritiesRepository;
 
     /**
      * 전체 프로젝트 목록
@@ -47,9 +50,13 @@ public class ProjectService {
         return new PageImpl<>(projectPageDto,projectPage.getPageable(),projectPage.getTotalElements());
     }
 
-    public ProjectDto getProject(Long projectSeq){
+    public ProjectDto getProject(Long projectSeq, Long memberSeq){
+
         Project project = projectRepository.findById(projectSeq)
                 .orElseThrow(() -> new ProjectNotFoundException());
+        if(project.getMemberSeq() != memberSeq){
+            throw new ProjectPermissionDeniedException();
+        }
         return convertToProjectDto(project);
     }
 
@@ -65,21 +72,23 @@ public class ProjectService {
                         .collect(Collectors.toList())))
                 .members(new ArrayList<>(project.getProjectMembers()
                         .stream()
-                        .map(projectAuthorities -> new ProjectMemberSeqDto(projectAuthorities.getMemberSeq()))
+                        .map(projectAuthorities -> new ProjectMemberSeqDto(projectAuthorities.getProjectAuthoritiesPk().getMemberSeq()))
                         .collect(Collectors.toList())))
                 .build();
     }
 
     @Transactional
-    public ProjectSeqDto createProject(ProjectCreateRequestDto projectCreateRequest){
+    public ProjectSeqDto createProject(ProjectCreateRequestDto projectCreateRequest,Long memberSeq){
         Project newProject = Project.builder()
-                .memberSeq(projectCreateRequest.getMemberSeq())
+                .memberSeq(memberSeq)
                 .projectName(projectCreateRequest.getProjectName())
                 .projectDescription(projectCreateRequest.getProjectDescription())
                 .projectStatus(projectCreateRequest.getProjectStatus())
                 .projectCreatedAt(LocalDateTime.now())
                 .build();
-        return new ProjectSeqDto(projectRepository.save(newProject).getProjectSeq());
+        Project project = projectRepository.save(newProject);
+        createProjectAuthorities(memberSeq,project,"PROJECT_ROLE_ADMIN");
+        return new ProjectSeqDto(project.getProjectSeq());
     }
 
     /**
@@ -88,11 +97,13 @@ public class ProjectService {
      * @param projectRequest
      * @return projectSeq
      */
-    //TODO 안됨
     @Transactional
-    public ProjectSeqDto updateProject(Long projectSeq, ProjectUpdateRequestDto projectRequest) {
+    public ProjectSeqDto updateProject(Long projectSeq, ProjectUpdateRequestDto projectRequest, Long memberSeq) {
         Project project = projectRepository.findById(projectSeq)
                 .orElseThrow(()->new ProjectNotFoundException());
+        if(project.getMemberSeq() != memberSeq){
+            throw new ProjectPermissionDeniedException();
+        }
         if(Objects.nonNull(projectRequest.getProjectName())){
             project.setProjectName(projectRequest.getProjectName());
         }
@@ -106,5 +117,53 @@ public class ProjectService {
         return new ProjectSeqDto(projectRepository.save(project).getProjectSeq());
     }
 
+
+    @Transactional
+    public ProjectAuthoritiesMemberSeqDto createProjectAuthorities(Long memberSeq, Project project, String role){
+        ProjectAuthorities newProjectMember = ProjectAuthorities.builder()
+                .projectAuthoritiesPk(new ProjectAuthorities.ProjectAuthoritiesPk(project.getProjectSeq(), memberSeq))
+                .project(project)
+                .projectAuthority(role)
+                .build();
+        return new ProjectAuthoritiesMemberSeqDto(projectAuthoritiesRepository.save(newProjectMember).getProjectAuthoritiesPk().getMemberSeq());
+    }
+
+    /**
+     * 프로젝트 맴버 등록 시 role은 member로 등록된다.
+     * @param projectSeq
+     * @param memberSeq
+     * @param projectAuthoritiesResisterRequest
+     */
+    @Transactional
+    public void resisterProjectMembers(Long projectSeq,
+                                       Long memberSeq,
+                                       ProjectAuthoritiesResisterRequestDto projectAuthoritiesResisterRequest){
+        Project project = projectRepository.findById(projectSeq)
+                .orElseThrow(ProjectNotFoundException::new);
+
+        if(!getProjectAuthorities(projectSeq, memberSeq).getProjectAuthority().equals("PROJECT_ROLE_ADMIN")){
+            throw new ProjectPermissionDeniedException();
+        }
+
+        for (Long member : projectAuthoritiesResisterRequest.getProjectMembers()) {
+            createProjectAuthorities(member, project,"PROJECT_ROLE_MEMBER");
+        }
+
+    }
+
+    public ProjectAuthoritiesDto getProjectAuthorities(Long projectSeq, Long memberSeq) {
+        ProjectAuthorities projectAuthorities = projectAuthoritiesRepository.findById(new ProjectAuthorities.ProjectAuthoritiesPk(projectSeq, memberSeq))
+                .orElseThrow(ProjectPermissionDeniedException::new);
+
+        return convertToProjectAuthoritiesDto(projectAuthorities);
+    }
+
+    private ProjectAuthoritiesDto convertToProjectAuthoritiesDto(ProjectAuthorities projectAuthorities){
+        return ProjectAuthoritiesDto.builder()
+                .projectSeq(projectAuthorities.getProjectAuthoritiesPk().getProjectSeq())
+                .memberSeq(projectAuthorities.getProjectAuthoritiesPk().getMemberSeq())
+                .projectAuthority(projectAuthorities.getProjectAuthority())
+                .build();
+    }
 
 }

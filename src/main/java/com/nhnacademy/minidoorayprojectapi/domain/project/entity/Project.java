@@ -21,6 +21,7 @@ import java.util.List;
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "project_seq")
     private Long projectSeq;
     private Long memberSeq;
     private String projectName;

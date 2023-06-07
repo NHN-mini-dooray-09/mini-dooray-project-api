@@ -1,5 +1,6 @@
 package com.nhnacademy.minidoorayprojectapi.domain.project.api;
 
+import com.nhnacademy.minidoorayprojectapi.domain.project.dto.request.ProjectAuthoritiesResisterRequestDto;
 import com.nhnacademy.minidoorayprojectapi.domain.project.dto.request.ProjectCreateRequestDto;
 import com.nhnacademy.minidoorayprojectapi.domain.project.dto.request.ProjectUpdateRequestDto;
 import com.nhnacademy.minidoorayprojectapi.domain.project.dto.response.ProjectDto;
@@ -12,6 +13,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
 import java.net.URI;
 import java.util.List;
 
@@ -32,22 +34,48 @@ public class ProjectApiController {
 
     //TODO GetMapping은 webconfig에서 처리한다.
     @PostMapping
-    public ResponseEntity<ProjectSeqDto> createProject(@RequestBody ProjectCreateRequestDto projectRequest){
-        ProjectSeqDto seq = projectService.createProject(projectRequest);
+    public ResponseEntity<ProjectSeqDto> createProject(@RequestBody ProjectCreateRequestDto projectRequest,
+//                                                       HttpSession session,
+                                                       @RequestParam("member-seq")Long memberSeq){
+//        ProjectSeqDto seq = projectService.createProject(projectRequest,(Long) session.getAttribute("memberSeq"));
+        ProjectSeqDto seq = projectService.createProject(projectRequest,memberSeq);
         return ResponseEntity.created(URI.create("/project/"+seq)).body(seq);
     }
 
     @GetMapping("/{project-seq}")
-    public ResponseEntity<ProjectDto> getProject(@PathVariable("project-seq") Long projectSeq){
-        ProjectDto projectDto = projectService.getProject(projectSeq);
+    public ResponseEntity<ProjectDto> getProject(@PathVariable("project-seq") Long projectSeq,
+//                                                 HttpSession session,
+                                                 @RequestParam("member-seq")Long memberSeq){
+        ProjectDto projectDto = projectService.getProject(projectSeq,memberSeq);
         return ResponseEntity.ok().body(projectDto);
     }
 
     @PatchMapping("/{project-seq}")
     public ResponseEntity<ProjectSeqDto> updateProject(@PathVariable("project-seq") Long projectSeq,
-                                                       @RequestBody ProjectUpdateRequestDto projectRequest){
-        ProjectSeqDto seq = projectService.updateProject(projectSeq, projectRequest);
+                                                       @RequestBody ProjectUpdateRequestDto projectRequest,
+//                                                       HttpSession session,
+                                                       @RequestParam("member-seq")Long memberSeq){
+//        ProjectSeqDto seq = projectService.updateProject(projectSeq,
+//                projectRequest,
+//                (Long) session.getAttribute("memberSeq"));
+        ProjectSeqDto seq = projectService.updateProject(projectSeq,
+                projectRequest,
+                memberSeq);
         return ResponseEntity.created(URI.create("/project/"+seq)).body(seq);
+    }
+
+    @PostMapping("/{project-seq}/members")
+    public ResponseEntity<Void> resisterProjectMember(@PathVariable("project-seq") Long projectSeq,
+                                                      @RequestBody ProjectAuthoritiesResisterRequestDto projectAuthoritiesResisterRequest,
+//                                                      HttpSession session,
+                                                      @RequestParam("member-seq")Long memberSeq){
+//        projectService.resisterProjectMembers(projectSeq,
+//                (Long) session.getAttribute("memberSeq"),
+//                projectAuthoritiesResisterRequest);
+        projectService.resisterProjectMembers(projectSeq,
+                memberSeq,
+                projectAuthoritiesResisterRequest);
+        return ResponseEntity.ok().build();
     }
 
 
