@@ -124,6 +124,7 @@ public class ProjectService {
      * @param memberSeq
      * @param projectAuthoritiesResisterRequest
      */
+    //TODO member등록할 때 casecade persist 추가 바람
     @Transactional
     public void resisterProjectMembers(Long projectSeq,
                                        Long memberSeq,

@@ -44,7 +44,7 @@ public class TagApiController {
     @DeleteMapping("/{project-seq}/tags/{tag-seq}")
     public ResponseEntity<Void> createTag(@PathVariable("project-seq") Long projectSeq,
                                                @PathVariable("tag-seq") Long tagSeq){
-        tagService.deleteTag(projectSeq, tagSeq);
+        tagService.deleteTag(tagSeq);
         return ResponseEntity.noContent()
                 .build();
     }

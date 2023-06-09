@@ -30,7 +30,6 @@ public class TagService {
      * @return
      */
     public List<TagSeqNameDto> getTagsByProjectSeq(Long projectSeq){
-        projectRepository.findById(projectSeq).orElseThrow(ProjectNotFoundException::new);
         return convertToTagSeqNameDtoList(tagRepository.findByProject_ProjectSeq(projectSeq));
     }
 
@@ -66,16 +65,13 @@ public class TagService {
      */
     @Transactional
     public TagSeqDto updateTag(Long projectSeq, Long tagSeq ,TagUpdateRequestDto tagUpdateRequestDto){
-        projectRepository.findById(projectSeq).orElseThrow(ProjectNotFoundException::new);
-
         Tag tag = tagRepository.findByProject_ProjectSeqAndTagSeq(projectSeq, tagSeq).orElseThrow(TagNotFoundException::new);
         tag.updateTag(tagUpdateRequestDto.getTagName());
         return convertToTagSeqDto(tag);
     }
 
     @Transactional
-    public void deleteTag(Long projectSeq, Long tagSeq){
-        projectRepository.findById(projectSeq).orElseThrow(ProjectNotFoundException::new);
+    public void deleteTag(Long tagSeq){
         tagRepository.deleteById(tagSeq);
     }
 
