@@ -1,14 +1,13 @@
 package com.nhnacademy.minidoorayprojectapi.domain.tag.entity;
 
 import com.nhnacademy.minidoorayprojectapi.domain.project.entity.Project;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "tags")
 @Entity
@@ -20,4 +19,14 @@ public class Tag {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
     private Project project;
+
+    @Builder
+    public Tag(String tagName, Project project) {
+        this.tagName = tagName;
+        this.project = project;
+    }
+
+    public void updateTag(String tagName){
+        this.tagName = tagName;
+    }
 }
