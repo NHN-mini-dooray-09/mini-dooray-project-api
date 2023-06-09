@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "projects")
@@ -37,15 +36,34 @@ public class Project {
     @OneToMany(mappedBy = "project")
     private List<ProjectAuthorities> projectMembers;
 
-    public void setProjectName(String projectName) {
+    @Builder
+    public Project(Long memberSeq, String projectName, String projectDescription, String projectStatus) {
+        this.memberSeq = memberSeq;
+        this.projectName = projectName;
+        this.projectDescription = projectDescription;
+        this.projectStatus = projectStatus;
+        this.projectCreatedAt = LocalDateTime.now();
+    }
+
+    public void updateProjectName(String projectName) {
         this.projectName = projectName;
     }
 
-    public void setProjectDescription(String projectDescription) {
+    public void updateProjectDescription(String projectDescription) {
         this.projectDescription = projectDescription;
     }
 
-    public void setProjectStatus(String projectStatus) {
+    public void updateProjectStatus(String projectStatus) {
         this.projectStatus = projectStatus;
     }
+
+    public void updateProject(String projectName, String projectStatus, String projectDescription){
+        this.projectName = projectName;
+        this.projectStatus = projectStatus;
+        this.projectDescription = projectDescription;
+    }
+
+
+
+
 }

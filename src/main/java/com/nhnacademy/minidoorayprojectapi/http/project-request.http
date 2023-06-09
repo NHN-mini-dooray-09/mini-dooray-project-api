@@ -18,6 +18,7 @@ Content-Type: application/json
 
 {
   "projectName": "project1-change",
+  "projectStatus":"활성",
   "projectDescription":"프로젝트 수정 테스트 입니다."
 }
 

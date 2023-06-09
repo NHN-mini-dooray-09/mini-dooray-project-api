@@ -9,7 +9,10 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Builder
 public class ProjectUpdateRequestDto {
+    @NotBlank
     private String projectName;
+    @NotBlank
     private String projectDescription;
+    @NotBlank
     private String projectStatus;
 }

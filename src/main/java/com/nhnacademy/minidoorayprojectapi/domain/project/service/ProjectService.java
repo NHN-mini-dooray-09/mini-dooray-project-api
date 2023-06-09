@@ -10,7 +10,7 @@ import com.nhnacademy.minidoorayprojectapi.domain.project.entity.Project;
 import com.nhnacademy.minidoorayprojectapi.domain.project.entity.ProjectAuthorities;
 import com.nhnacademy.minidoorayprojectapi.domain.project.exception.ProjectPermissionDeniedException;
 import com.nhnacademy.minidoorayprojectapi.domain.project.exception.ProjectNotFoundException;
-import com.nhnacademy.minidoorayprojectapi.domain.tag.dto.TagSeqNameDto;
+import com.nhnacademy.minidoorayprojectapi.domain.tag.dto.response.TagSeqNameDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -18,11 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -84,7 +81,6 @@ public class ProjectService {
                 .projectName(projectCreateRequest.getProjectName())
                 .projectDescription(projectCreateRequest.getProjectDescription())
                 .projectStatus(projectCreateRequest.getProjectStatus())
-                .projectCreatedAt(LocalDateTime.now())
                 .build();
         Project project = projectRepository.save(newProject);
         createProjectAuthorities(memberSeq,project,"PROJECT_ROLE_ADMIN");
@@ -104,15 +100,9 @@ public class ProjectService {
         if(project.getMemberSeq() != memberSeq){
             throw new ProjectPermissionDeniedException();
         }
-        if(Objects.nonNull(projectRequest.getProjectName())){
-            project.setProjectName(projectRequest.getProjectName());
-        }
-        if(Objects.nonNull(projectRequest.getProjectDescription())){
-            project.setProjectDescription(projectRequest.getProjectDescription());
-        }
-        if(Objects.nonNull(projectRequest.getProjectStatus())){
-            project.setProjectStatus(projectRequest.getProjectStatus());
-        }
+
+        project.updateProject(projectRequest.getProjectName(), projectRequest.getProjectStatus(), project.getProjectDescription());
+
 
         return new ProjectSeqDto(projectRepository.save(project).getProjectSeq());
     }

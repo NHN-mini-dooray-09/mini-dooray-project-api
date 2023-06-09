@@ -6,8 +6,6 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Getter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "project_authorities")
 @Entity
@@ -21,6 +19,7 @@ public class ProjectAuthorities {
     private Project project;
 
     @Embeddable
+    @Builder
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
@@ -29,5 +28,12 @@ public class ProjectAuthorities {
         @Column(name = "project_seq")
         private Long projectSeq;
         private Long memberSeq;
+    }
+
+    @Builder
+    public ProjectAuthorities(ProjectAuthoritiesPk projectAuthoritiesPk, String projectAuthority, Project project) {
+        this.projectAuthoritiesPk = projectAuthoritiesPk;
+        this.projectAuthority = projectAuthority;
+        this.project = project;
     }
 }
