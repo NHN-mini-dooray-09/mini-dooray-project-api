@@ -52,9 +52,7 @@ public class TagService {
     }
 
     public TagSeqDto convertToTagSeqDto(Tag tag){
-        return TagSeqDto.builder()
-                .tagSeq(tag.getTagSeq())
-                .build();
+        return new TagSeqDto(tag.getTagSeq());
     }
 
     /**

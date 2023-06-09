@@ -1,4 +1,4 @@
-package com.nhnacademy.minidoorayprojectapi.domain.task.dto;
+package com.nhnacademy.minidoorayprojectapi.domain.task.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

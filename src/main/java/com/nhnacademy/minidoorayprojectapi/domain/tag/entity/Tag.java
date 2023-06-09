@@ -1,11 +1,13 @@
 package com.nhnacademy.minidoorayprojectapi.domain.tag.entity;
 
 import com.nhnacademy.minidoorayprojectapi.domain.project.entity.Project;
+import com.nhnacademy.minidoorayprojectapi.domain.task.entity.TaskTag;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -19,6 +21,9 @@ public class Tag {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
     private Project project;
+
+    @OneToMany(mappedBy = "tag")
+    private List<TaskTag> taskTags;
 
     @Builder
     public Tag(String tagName, Project project) {
