@@ -1,0 +1,26 @@
+### 마일스톤 전체 조회
+GET localhost:8080/projects/1/milestones
+
+### 마일스톤 생성
+POST localhost:8080/projects/1/milestones
+Content-Type: application/json
+
+{
+	"milestoneName": "milestoneName01",
+	"milestoneStartDate": "2023-06-01T12:00:00",
+	"milestoneEndDate": "2023-06-16T12:00:00"
+}
+
+### 마일스톤 수정
+PATCH localhost:8080/projects/1/milestones/1
+Content-Type: application/json
+
+{
+  "milestoneName": "milestoneName01Edited",
+  "milestoneStartDate": "2023-06-01T12:00:00",
+  "milestoneEndDate": "2023-06-16T12:00:00"
+}
+
+### 마일스톤 삭제
+DELETE localhost:8080/projects/1/milestones/1
+

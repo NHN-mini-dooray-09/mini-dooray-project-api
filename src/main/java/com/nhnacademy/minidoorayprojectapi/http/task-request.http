@@ -1,0 +1,37 @@
+### 프로젝트 - 전체 업무 조회
+GET localhost:8080/projects/1/task
+
+### 업무 조회
+GET localhost:8080/projects/1/1
+
+### 업무 생성
+POST localhost:8080/projects/1?member-seq=1
+Content-Type: application/json
+
+{
+  "taskTitle": "project1-task2",
+  "taskContent": "할거 너무 많은데...?",
+  "taskStatus": "활성",
+  "milestoneSeq": "",
+  "tags": [1, 2]
+}
+
+
+### 업무 수정
+PATCH localhost:8080/projects/1/1
+Content-Type: application/json
+
+{
+"taskTitle": "project1-task2",
+"taskContent": "할거 정말 너무 많은데...?",
+"taskStatus": "활성",
+"milestoneSeq": 1,
+"tags": [1]
+}
+
+### 업무 삭제
+DELETE localhost:8080/projects/1/1
+
+
+
+
