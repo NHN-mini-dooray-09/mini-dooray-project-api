@@ -5,9 +5,12 @@ import com.nhnacademy.minidoorayprojectapi.domain.milestone.dto.request.Mileston
 import com.nhnacademy.minidoorayprojectapi.domain.milestone.dto.response.MilestoneDto;
 import com.nhnacademy.minidoorayprojectapi.domain.milestone.dto.response.MilestoneSeqDto;
 import com.nhnacademy.minidoorayprojectapi.domain.milestone.service.MilestoneService;
+import com.nhnacademy.minidoorayprojectapi.global.exception.ValidationFailedException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
@@ -29,15 +32,23 @@ public class MilestoneApiController {
 
     @PostMapping("/{project-seq}/milestones")
     public ResponseEntity<MilestoneSeqDto> createMilestone(@PathVariable("project-seq")Long projectSeq ,
-                                                           @RequestBody MilestoneCreateRequestDto milestoneCreateRequest){
+                                                           @Valid @RequestBody MilestoneCreateRequestDto milestoneCreateRequest,
+                                                           BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
+            throw new ValidationFailedException(bindingResult);
+        }
         return ResponseEntity.created(URI.create("/project/"+projectSeq))
                 .body(milestoneService.createMilestone(projectSeq,milestoneCreateRequest));
     }
 
     @PatchMapping("/{project-seq}/milestones/{milestone-seq}")
     public ResponseEntity<MilestoneSeqDto> updateMilestone(@PathVariable("project-seq")Long projectSeq ,
-                                            @PathVariable("milestone-seq") Long milestoneSeq,
-                                            @RequestBody MilestoneUpdateRequestDto milestoneUpdateRequest){
+                                                           @PathVariable("milestone-seq") Long milestoneSeq,
+                                                           @Valid @RequestBody MilestoneUpdateRequestDto milestoneUpdateRequest,
+                                                           BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
+            throw new ValidationFailedException(bindingResult);
+        }
         return ResponseEntity.ok().body(milestoneService.updateMilestone(projectSeq, milestoneSeq, milestoneUpdateRequest));
     }
 

@@ -5,9 +5,12 @@ import com.nhnacademy.minidoorayprojectapi.domain.tag.dto.request.TagUpdateReque
 import com.nhnacademy.minidoorayprojectapi.domain.tag.dto.response.TagSeqDto;
 import com.nhnacademy.minidoorayprojectapi.domain.tag.dto.response.TagSeqNameDto;
 import com.nhnacademy.minidoorayprojectapi.domain.tag.service.TagService;
+import com.nhnacademy.minidoorayprojectapi.global.exception.ValidationFailedException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
@@ -28,7 +31,11 @@ public class TagApiController {
 
     @PostMapping("/{project-seq}/tags")
     public ResponseEntity<TagSeqDto> createTag(@PathVariable("project-seq") Long projectSeq,
-                                               @RequestBody TagCreateRequestDto tagCreateRequest){
+                                               @Valid @RequestBody TagCreateRequestDto tagCreateRequest,
+                                               BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
+            throw new ValidationFailedException(bindingResult);
+        }
         return ResponseEntity.created(URI.create("/projects/"+projectSeq))
                 .body(tagService.createTag(projectSeq, tagCreateRequest));
     }
@@ -36,7 +43,11 @@ public class TagApiController {
     @PatchMapping("/{project-seq}/tags/{tag-seq}")
     public ResponseEntity<TagSeqDto> updateTag(@PathVariable("project-seq") Long projectSeq,
                                                @PathVariable("tag-seq") Long tagSeq,
-                                               @RequestBody TagUpdateRequestDto tagUpdateRequest){
+                                               @Valid @RequestBody TagUpdateRequestDto tagUpdateRequest,
+                                               BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
+            throw new ValidationFailedException(bindingResult);
+        }
         return ResponseEntity.ok()
                 .body(tagService.updateTag(projectSeq, tagSeq ,tagUpdateRequest));
     }

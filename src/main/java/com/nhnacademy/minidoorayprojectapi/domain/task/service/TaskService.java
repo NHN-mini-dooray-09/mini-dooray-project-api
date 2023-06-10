@@ -48,9 +48,6 @@ public class TaskService {
      * @return
      */
     public Page<TaskSeqNameAndMemberSeqDto> getTasks(Pageable pageable, Long projectSeq ){
-        if(!projectRepository.existsById(projectSeq)){
-            throw new ProjectNotFoundException();
-        }
 
         Page<Task> taskPage = taskRepository.getAllByProject_ProjectSeq(pageable, projectSeq);
         return convertToTaskPageDto(taskPage);
@@ -107,6 +104,7 @@ public class TaskService {
      * @param taskCreateRequest
      * @return
      */
+    @Transactional
     public TaskSeqDto createTask(Long projectSeq,Long memberSeq ,TaskCreateRequestDto taskCreateRequest){
         Task newTask = Task.builder()
                 .memberSeq(memberSeq)

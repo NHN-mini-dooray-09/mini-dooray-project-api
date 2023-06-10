@@ -7,13 +7,16 @@ import com.nhnacademy.minidoorayprojectapi.domain.project.dto.response.ProjectDt
 import com.nhnacademy.minidoorayprojectapi.domain.project.dto.response.ProjectSeqDto;
 import com.nhnacademy.minidoorayprojectapi.domain.project.dto.response.ProjectSeqNameDto;
 import com.nhnacademy.minidoorayprojectapi.domain.project.service.ProjectService;
+import com.nhnacademy.minidoorayprojectapi.global.exception.ValidationFailedException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
@@ -34,10 +37,14 @@ public class ProjectApiController {
 
     //TODO GetMapping은 webconfig에서 처리한다.
     @PostMapping
-    public ResponseEntity<ProjectSeqDto> createProject(@RequestBody ProjectCreateRequestDto projectRequest,
+    public ResponseEntity<ProjectSeqDto> createProject(@Valid @RequestBody ProjectCreateRequestDto projectRequest,
+                                                        BindingResult bindingResult,
 //                                                       HttpSession session,
                                                        @RequestParam("member-seq")Long memberSeq){
 //        ProjectSeqDto seq = projectService.createProject(projectRequest,(Long) session.getAttribute("memberSeq"));
+        if(bindingResult.hasErrors()){
+            throw new ValidationFailedException(bindingResult);
+        }
         ProjectSeqDto seq = projectService.createProject(projectRequest,memberSeq);
         return ResponseEntity.created(URI.create("/project/"+seq)).body(seq);
     }
@@ -52,12 +59,16 @@ public class ProjectApiController {
 
     @PatchMapping("/{project-seq}")
     public ResponseEntity<ProjectSeqDto> updateProject(@PathVariable("project-seq") Long projectSeq,
-                                                       @RequestBody ProjectUpdateRequestDto projectRequest,
+                                                       @Valid @RequestBody ProjectUpdateRequestDto projectRequest,
+                                                        BindingResult bindingResult,
 //                                                       HttpSession session,
                                                        @RequestParam("member-seq")Long memberSeq){
 //        ProjectSeqDto seq = projectService.updateProject(projectSeq,
 //                projectRequest,
 //                (Long) session.getAttribute("memberSeq"));
+        if(bindingResult.hasErrors()){
+            throw new ValidationFailedException(bindingResult);
+        }
         ProjectSeqDto seq = projectService.updateProject(projectSeq,
                 projectRequest,
                 memberSeq);
@@ -66,12 +77,16 @@ public class ProjectApiController {
 
     @PostMapping("/{project-seq}/members")
     public ResponseEntity<Void> resisterProjectMember(@PathVariable("project-seq") Long projectSeq,
-                                                      @RequestBody ProjectAuthoritiesResisterRequestDto projectAuthoritiesResisterRequest,
+                                                      @Valid @RequestBody ProjectAuthoritiesResisterRequestDto projectAuthoritiesResisterRequest,
+                                                        BindingResult bindingResult,
 //                                                      HttpSession session,
                                                       @RequestParam("member-seq")Long memberSeq){
 //        projectService.resisterProjectMembers(projectSeq,
 //                (Long) session.getAttribute("memberSeq"),
 //                projectAuthoritiesResisterRequest);
+        if(bindingResult.hasErrors()){
+            throw new ValidationFailedException(bindingResult);
+        }
         projectService.resisterProjectMembers(projectSeq,
                 memberSeq,
                 projectAuthoritiesResisterRequest);
