@@ -8,9 +8,9 @@ import com.nhnacademy.minidoorayprojectapi.domain.project.dto.request.ProjectUpd
 import com.nhnacademy.minidoorayprojectapi.domain.project.dto.response.*;
 import com.nhnacademy.minidoorayprojectapi.domain.project.entity.Project;
 import com.nhnacademy.minidoorayprojectapi.domain.project.entity.ProjectAuthority;
-import com.nhnacademy.minidoorayprojectapi.domain.project.exception.ProjectPermissionDeniedException;
-import com.nhnacademy.minidoorayprojectapi.domain.project.exception.ProjectNotFoundException;
+import com.nhnacademy.minidoorayprojectapi.global.exception.ProjectNotFoundException;
 import com.nhnacademy.minidoorayprojectapi.domain.tag.dto.response.TagSeqNameDto;
+import com.nhnacademy.minidoorayprojectapi.global.exception.UnauthorizedAccessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -34,8 +34,9 @@ public class ProjectService {
      * @param pageable
      * @return
      */
+    //TODO ROLE Admin check 해야하ㅏ?
     public Page<ProjectSeqNameDto> getProjectAll(Pageable pageable,Long memberSeq) {
-        Page<Project> projectPage = projectRepository.getAllByMemberSeq(pageable);
+        Page<Project> projectPage = projectRepository.getAllByMemberSeq(pageable, memberSeq);
         return convertToProjectSeqNameDtoPage(projectPage);
     }
 
@@ -50,9 +51,9 @@ public class ProjectService {
     public ProjectDto getProject(Long projectSeq, Long memberSeq){
 
         Project project = projectRepository.findById(projectSeq)
-                .orElseThrow(() -> new ProjectNotFoundException());
-        if(project.getMemberSeq() != memberSeq){
-            throw new ProjectPermissionDeniedException();
+                .orElseThrow(() -> new ProjectNotFoundException("프로젝트를 찾을 수 없습니다."));
+        if(project.getMemberSeq().equals(memberSeq)){
+            throw new UnauthorizedAccessException();
         }
         return convertToProjectDto(project);
     }
@@ -96,9 +97,9 @@ public class ProjectService {
     @Transactional
     public ProjectSeqDto updateProject(Long projectSeq, ProjectUpdateRequestDto projectRequest, Long memberSeq) {
         Project project = projectRepository.findById(projectSeq)
-                .orElseThrow(()->new ProjectNotFoundException());
-        if(project.getMemberSeq() != memberSeq){
-            throw new ProjectPermissionDeniedException();
+                .orElseThrow(()->new ProjectNotFoundException("해당 프로젝트를 찾을 수 없습니다."));
+        if(project.getMemberSeq().equals(memberSeq)){
+            throw new UnauthorizedAccessException();
         }
 
         project.updateProject(projectRequest.getProjectName(), projectRequest.getProjectStatus(), project.getProjectDescription());
@@ -113,7 +114,7 @@ public class ProjectService {
         ProjectAuthority newProjectMember = ProjectAuthority.builder()
                 .projectAuthoritiesPk(new ProjectAuthority.ProjectAuthoritiesPk(project.getProjectSeq(), memberSeq))
                 .project(project)
-                .projectAuthority(role)
+                .authority(role)
                 .build();
         return new ProjectAuthoritiesMemberSeqDto(projectAuthoritiesRepository.save(newProjectMember).getProjectAuthoritiesPk().getMemberSeq());
     }
@@ -130,10 +131,10 @@ public class ProjectService {
                                        Long memberSeq,
                                        ProjectAuthorityResisterRequestDto projectAuthoritiesResisterRequest){
         Project project = projectRepository.findById(projectSeq)
-                .orElseThrow(ProjectNotFoundException::new);
+                .orElseThrow(()->new ProjectNotFoundException(""));
 
         if(!getProjectAuthorities(projectSeq, memberSeq).getProjectAuthority().equals("PROJECT_ROLE_ADMIN")){
-            throw new ProjectPermissionDeniedException();
+            throw new UnauthorizedAccessException();
         }
 
         for (Long member : projectAuthoritiesResisterRequest.getProjectMembers()) {
@@ -144,7 +145,7 @@ public class ProjectService {
 
     public ProjectAuthoritiesDto getProjectAuthorities(Long projectSeq, Long memberSeq) {
         ProjectAuthority projectAuthorities = projectAuthoritiesRepository.findById(new ProjectAuthority.ProjectAuthoritiesPk(projectSeq, memberSeq))
-                .orElseThrow(ProjectPermissionDeniedException::new);
+                .orElseThrow(UnauthorizedAccessException::new);
 
         return convertToProjectAuthoritiesDto(projectAuthorities);
     }
@@ -153,7 +154,7 @@ public class ProjectService {
         return ProjectAuthoritiesDto.builder()
                 .projectSeq(projectAuthorities.getProjectAuthoritiesPk().getProjectSeq())
                 .memberSeq(projectAuthorities.getProjectAuthoritiesPk().getMemberSeq())
-                .projectAuthority(projectAuthorities.getProjectAuthority())
+                .projectAuthority(projectAuthorities.getAuthority())
                 .build();
     }
 

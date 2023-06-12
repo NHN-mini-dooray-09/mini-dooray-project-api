@@ -2,7 +2,6 @@ package com.nhnacademy.minidoorayprojectapi.domain.task.dto.response;
 
 import com.nhnacademy.minidoorayprojectapi.domain.comment.dto.response.CommentDto;
 import com.nhnacademy.minidoorayprojectapi.domain.milestone.dto.response.MilestoneDto;
-import com.nhnacademy.minidoorayprojectapi.domain.milestone.entity.Milestone;
 import com.nhnacademy.minidoorayprojectapi.domain.tag.dto.response.TagSeqNameDto;
 import lombok.Builder;
 import lombok.Getter;

@@ -1,15 +1,13 @@
 package com.nhnacademy.minidoorayprojectapi.domain.tag.service;
 
 import com.nhnacademy.minidoorayprojectapi.domain.project.dao.ProjectRepository;
-import com.nhnacademy.minidoorayprojectapi.domain.project.exception.ProjectNotFoundException;
-import com.nhnacademy.minidoorayprojectapi.domain.project.service.ProjectService;
+import com.nhnacademy.minidoorayprojectapi.global.exception.ProjectNotFoundException;
 import com.nhnacademy.minidoorayprojectapi.domain.tag.dao.TagRepository;
 import com.nhnacademy.minidoorayprojectapi.domain.tag.dto.request.TagCreateRequestDto;
 import com.nhnacademy.minidoorayprojectapi.domain.tag.dto.request.TagUpdateRequestDto;
 import com.nhnacademy.minidoorayprojectapi.domain.tag.dto.response.TagSeqDto;
 import com.nhnacademy.minidoorayprojectapi.domain.tag.dto.response.TagSeqNameDto;
 import com.nhnacademy.minidoorayprojectapi.domain.tag.entity.Tag;
-import com.nhnacademy.minidoorayprojectapi.domain.tag.exception.TagNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,7 +44,8 @@ public class TagService {
     public TagSeqDto createTag(Long projectSeq, TagCreateRequestDto tagCreateRequest) {
         Tag newTag = Tag.builder()
                 .tagName(tagCreateRequest.getTagName())
-                .project(projectRepository.findById(projectSeq).orElseThrow(ProjectNotFoundException::new))
+                .project(projectRepository.findById(projectSeq)
+                        .orElseThrow(() -> new ProjectNotFoundException("프로젝트를 찾을 수 없습니다.")))
                 .build();
         return convertToTagSeqDto(tagRepository.save(newTag));
     }
@@ -63,7 +62,8 @@ public class TagService {
      */
     @Transactional
     public TagSeqDto updateTag(Long projectSeq, Long tagSeq ,TagUpdateRequestDto tagUpdateRequestDto){
-        Tag tag = tagRepository.findByProject_ProjectSeqAndTagSeq(projectSeq, tagSeq).orElseThrow(TagNotFoundException::new);
+        Tag tag = tagRepository.findByProject_ProjectSeqAndTagSeq(projectSeq, tagSeq)
+                .orElseThrow(() -> new ProjectNotFoundException("해당 태그를 찾을 수 없습니다."));
         tag.updateTag(tagUpdateRequestDto.getTagName());
         return convertToTagSeqDto(tag);
     }

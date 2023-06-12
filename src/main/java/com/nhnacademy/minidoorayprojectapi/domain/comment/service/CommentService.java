@@ -6,9 +6,8 @@ import com.nhnacademy.minidoorayprojectapi.domain.comment.dto.request.CommentUpd
 import com.nhnacademy.minidoorayprojectapi.domain.comment.dto.response.CommentDto;
 import com.nhnacademy.minidoorayprojectapi.domain.comment.dto.response.CommentSeqDto;
 import com.nhnacademy.minidoorayprojectapi.domain.comment.entity.Comment;
-import com.nhnacademy.minidoorayprojectapi.domain.comment.exception.CommentNotFoundException;
+import com.nhnacademy.minidoorayprojectapi.global.exception.ProjectNotFoundException;
 import com.nhnacademy.minidoorayprojectapi.domain.task.dao.TaskRepository;
-import com.nhnacademy.minidoorayprojectapi.domain.task.exception.TaskNotFoundException;
 import com.nhnacademy.minidoorayprojectapi.global.exception.UnauthorizedAccessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -46,7 +45,7 @@ public class CommentService {
         Comment newComment = Comment.builder()
                 .memberSeq(memberSeq)
                 .task(taskRepository.findByProject_ProjectSeqAndTaskSeq(projectSeq, taskSeq)
-                        .orElseThrow(TaskNotFoundException::new))
+                        .orElseThrow(() -> new ProjectNotFoundException("해당 업무를 찾을 수 없습니다.")))
                 .commentContent(commentCreateRequest.getCommentContent())
                 .build();
         return convertToCommentSeqDto(commentRepository.save(newComment));
@@ -56,11 +55,11 @@ public class CommentService {
     public CommentSeqDto updateComment(Long projectSeq, Long taskSeq, Long memberSeq, Long commentSeq,
                                        CommentUpdateRequestDto commentUpdateRequestDto){
         if(!commentRepository.existsByCommentSeqAndMemberSeq(commentSeq, memberSeq)){
-            throw new UnauthorizedAccessException("접근 권한이 없습니다.");
+            throw new UnauthorizedAccessException();
         }
         Comment comment = commentRepository.findByTask_Project_ProjectSeqAndTask_TaskSeqAndCommentSeq
                         (projectSeq, taskSeq, commentSeq)
-                .orElseThrow(CommentNotFoundException::new);
+                .orElseThrow(() -> new ProjectNotFoundException("해당 댓글을 찾을 수 없습니다."));
         comment.updateComment(commentUpdateRequestDto.getCommentContent());
         return convertToCommentSeqDto(comment);
     }
@@ -72,7 +71,7 @@ public class CommentService {
     @Transactional
     public void deleteComment(Long projectSeq, Long taskSeq, Long memberSeq, Long commentSeq){
         if(!commentRepository.existsByCommentSeqAndMemberSeq(commentSeq, memberSeq)){
-            throw new UnauthorizedAccessException("접근 권한이 없습니다.");
+            throw new UnauthorizedAccessException();
         }
         commentRepository.deleteById(commentSeq);
     }

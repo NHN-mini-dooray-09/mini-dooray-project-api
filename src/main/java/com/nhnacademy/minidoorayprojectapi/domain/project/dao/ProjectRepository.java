@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ProjectRepository extends JpaRepository<Project, Long>, ProjectRepositoryCustom {
 
     Page<Project> getAllBy(Pageable pageable);
-    Page<Project> getAllByMemberSeq(Pageable pageable);
-
+    Page<Project> getAllByMemberSeq(Pageable pageable, Long memberSeq);
 
 }

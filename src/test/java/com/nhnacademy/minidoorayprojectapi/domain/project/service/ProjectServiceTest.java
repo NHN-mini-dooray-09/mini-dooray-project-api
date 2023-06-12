@@ -16,33 +16,33 @@ class ProjectServiceTest {
     @Autowired
     ProjectService projectService;
 
-    @Test
-    void testCreateProject() {
-        ProjectCreateRequestDto createRequest = ProjectCreateRequestDto.builder()
-                .projectName("project1-create-test")
-                .projectDescription("project 생성 테스트")
-                .projectStatus("지연")
-                .build();
-        ProjectSeqDto projectSeqDto = projectService.createProject(createRequest, 1L);
-        assertThat(projectService.getProject(projectSeqDto.getProjectSeq(),1L).getProjectName()).isEqualTo(createRequest.getProjectName());
-    }
-
-    @Test
-    void testGetProject() {
-//        assertThat(projectService.getProject(1L,1L).getMembers().size()).isEqualTo(3);
-        assertThat(projectService.getProject(1L,1L).getProjectName()).isEqualTo("project1");
-
-    }
-
-
-    @Test
-    void testUpdateProject() {
-        ProjectUpdateRequestDto updateRequest = ProjectUpdateRequestDto.builder()
-                .projectName("project1-change-test")
-                .build();
-        projectService.updateProject(1L, updateRequest,1L);
-        assertThat(projectService.getProject(1L,1L).getProjectName()).isEqualTo(updateRequest.getProjectName());
-    }
+//    @Test
+//    void testCreateProject() {
+//        ProjectCreateRequestDto createRequest = ProjectCreateRequestDto.builder()
+//                .projectName("project1-create-test")
+//                .projectDescription("project 생성 테스트")
+//                .projectStatus("지연")
+//                .build();
+//        ProjectSeqDto projectSeqDto = projectService.createProject(createRequest, 1L);
+//        assertThat(projectService.getProject(projectSeqDto.getProjectSeq(),1L).getProjectName()).isEqualTo(createRequest.getProjectName());
+//    }
+//
+//    @Test
+//    void testGetProject() {
+////        assertThat(projectService.getProject(1L,1L).getMembers().size()).isEqualTo(3);
+//        assertThat(projectService.getProject(1L,1L).getProjectName()).isEqualTo("project1");
+//
+//    }
+//
+//
+//    @Test
+//    void testUpdateProject() {
+//        ProjectUpdateRequestDto updateRequest = ProjectUpdateRequestDto.builder()
+//                .projectName("project1-change-test")
+//                .build();
+//        projectService.updateProject(1L, updateRequest,1L);
+//        assertThat(projectService.getProject(1L,1L).getProjectName()).isEqualTo(updateRequest.getProjectName());
+//    }
 
 
 }

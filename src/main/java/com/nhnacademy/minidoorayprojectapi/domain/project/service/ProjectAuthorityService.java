@@ -17,12 +17,12 @@ public class ProjectAuthorityService {
     public ProjectAuthorityDto getProjectAuthority(Long projectSeq, Long memberSeq){
         ProjectAuthority projectAuthority = projectAuthorityRepository.findById
                 (new ProjectAuthority.ProjectAuthoritiesPk(projectSeq,memberSeq))
-                .orElseThrow(()->new UnauthorizedAccessException("프로젝트 접근 권한이 없습니다."));
+                .orElseThrow(()->new UnauthorizedAccessException());
         return convertToProjectAuthorityDto(projectAuthority);
     }
 
     private ProjectAuthorityDto convertToProjectAuthorityDto(ProjectAuthority projectAuthority){
-        return new ProjectAuthorityDto(projectAuthority.getProject().getMemberSeq(), projectAuthority.getProjectAuthority());
+        return new ProjectAuthorityDto(projectAuthority.getProject().getMemberSeq(), projectAuthority.getAuthority());
     }
 
 
