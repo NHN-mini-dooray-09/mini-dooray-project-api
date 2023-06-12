@@ -9,6 +9,7 @@ import com.nhnacademy.minidoorayprojectapi.domain.comment.entity.Comment;
 import com.nhnacademy.minidoorayprojectapi.domain.comment.exception.CommentNotFoundException;
 import com.nhnacademy.minidoorayprojectapi.domain.task.dao.TaskRepository;
 import com.nhnacademy.minidoorayprojectapi.domain.task.exception.TaskNotFoundException;
+import com.nhnacademy.minidoorayprojectapi.global.exception.UnauthorizedAccessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -54,8 +55,11 @@ public class CommentService {
     @Transactional
     public CommentSeqDto updateComment(Long projectSeq, Long taskSeq, Long memberSeq, Long commentSeq,
                                        CommentUpdateRequestDto commentUpdateRequestDto){
-        Comment comment = commentRepository.findByTask_Project_ProjectSeqAndTask_TaskSeqAndCommentSeqAndMemberSeq
-                        (projectSeq, taskSeq, commentSeq, memberSeq)
+        if(!commentRepository.existsByCommentSeqAndMemberSeq(commentSeq, memberSeq)){
+            throw new UnauthorizedAccessException("접근 권한이 없습니다.");
+        }
+        Comment comment = commentRepository.findByTask_Project_ProjectSeqAndTask_TaskSeqAndCommentSeq
+                        (projectSeq, taskSeq, commentSeq)
                 .orElseThrow(CommentNotFoundException::new);
         comment.updateComment(commentUpdateRequestDto.getCommentContent());
         return convertToCommentSeqDto(comment);
@@ -66,7 +70,10 @@ public class CommentService {
     }
 
     @Transactional
-    public void deleteComment(Long projectSeq, Long taskSeq, Long commentSeq){
+    public void deleteComment(Long projectSeq, Long taskSeq, Long memberSeq, Long commentSeq){
+        if(!commentRepository.existsByCommentSeqAndMemberSeq(commentSeq, memberSeq)){
+            throw new UnauthorizedAccessException("접근 권한이 없습니다.");
+        }
         commentRepository.deleteById(commentSeq);
     }
 

@@ -3,17 +3,12 @@ package com.nhnacademy.minidoorayprojectapi.domain.project.service;
 import com.nhnacademy.minidoorayprojectapi.domain.project.dto.request.ProjectCreateRequestDto;
 import com.nhnacademy.minidoorayprojectapi.domain.project.dto.request.ProjectUpdateRequestDto;
 import com.nhnacademy.minidoorayprojectapi.domain.project.dto.response.ProjectSeqDto;
-import com.nhnacademy.minidoorayprojectapi.domain.project.entity.Project;
-import com.nhnacademy.minidoorayprojectapi.domain.project.entity.ProjectAuthorities;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional

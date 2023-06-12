@@ -1,5 +1,6 @@
 package com.nhnacademy.minidoorayprojectapi.domain.task.entity;
 
+import com.nhnacademy.minidoorayprojectapi.domain.comment.entity.Comment;
 import com.nhnacademy.minidoorayprojectapi.domain.milestone.entity.Milestone;
 import com.nhnacademy.minidoorayprojectapi.domain.project.entity.Project;
 import com.nhnacademy.minidoorayprojectapi.domain.tag.entity.Tag;
@@ -32,8 +33,11 @@ public class Task {
     private String taskStatus;
     private LocalDateTime taskCreatedAt;
 
-    @OneToMany(mappedBy = "task")
+    @OneToMany(mappedBy = "task", cascade = CascadeType.REMOVE)
     private List<TaskTag> taskTags;
+
+    @OneToMany(mappedBy = "task",cascade = CascadeType.REMOVE)
+    private List<Comment> comments;
 
 
     @Builder

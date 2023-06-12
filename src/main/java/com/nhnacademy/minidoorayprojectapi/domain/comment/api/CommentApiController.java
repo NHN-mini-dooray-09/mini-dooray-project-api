@@ -62,9 +62,10 @@ public class CommentApiController {
     @DeleteMapping("/{project-seq}/{task-seq}/comments/{comment-seq}")
     public ResponseEntity<Void> deleteComment(@PathVariable("project-seq") Long projectSeq,
                                               @PathVariable("task-seq") Long taskSeq,
-                                              @PathVariable("comment-seq")Long commentSeq){
+                                              @PathVariable("comment-seq")Long commentSeq,
+                                              @RequestParam("member-seq")Long memberSeq){
 
-        commentService.deleteComment(projectSeq,taskSeq,commentSeq);
+        commentService.deleteComment(projectSeq,taskSeq,memberSeq, commentSeq);
         return ResponseEntity.noContent().build();
     }
 

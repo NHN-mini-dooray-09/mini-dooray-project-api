@@ -1,13 +1,13 @@
 package com.nhnacademy.minidoorayprojectapi.domain.project.service;
 
-import com.nhnacademy.minidoorayprojectapi.domain.project.dao.ProjectAuthoritiesRepository;
+import com.nhnacademy.minidoorayprojectapi.domain.project.dao.ProjectAuthorityRepository;
 import com.nhnacademy.minidoorayprojectapi.domain.project.dao.ProjectRepository;
-import com.nhnacademy.minidoorayprojectapi.domain.project.dto.request.ProjectAuthoritiesResisterRequestDto;
+import com.nhnacademy.minidoorayprojectapi.domain.project.dto.request.ProjectAuthorityResisterRequestDto;
 import com.nhnacademy.minidoorayprojectapi.domain.project.dto.request.ProjectCreateRequestDto;
 import com.nhnacademy.minidoorayprojectapi.domain.project.dto.request.ProjectUpdateRequestDto;
 import com.nhnacademy.minidoorayprojectapi.domain.project.dto.response.*;
 import com.nhnacademy.minidoorayprojectapi.domain.project.entity.Project;
-import com.nhnacademy.minidoorayprojectapi.domain.project.entity.ProjectAuthorities;
+import com.nhnacademy.minidoorayprojectapi.domain.project.entity.ProjectAuthority;
 import com.nhnacademy.minidoorayprojectapi.domain.project.exception.ProjectPermissionDeniedException;
 import com.nhnacademy.minidoorayprojectapi.domain.project.exception.ProjectNotFoundException;
 import com.nhnacademy.minidoorayprojectapi.domain.tag.dto.response.TagSeqNameDto;
@@ -27,15 +27,15 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class ProjectService {
     private final ProjectRepository projectRepository;
-    private final ProjectAuthoritiesRepository projectAuthoritiesRepository;
+    private final ProjectAuthorityRepository projectAuthoritiesRepository;
 
     /**
-     * 전체 프로젝트 목록
+     * 전체 프로젝트 목록 : 로그인한 사람것만 가능
      * @param pageable
      * @return
      */
-    public Page<ProjectSeqNameDto> getProjectAll(Pageable pageable) {
-        Page<Project> projectPage = projectRepository.getAllBy(pageable);
+    public Page<ProjectSeqNameDto> getProjectAll(Pageable pageable,Long memberSeq) {
+        Page<Project> projectPage = projectRepository.getAllByMemberSeq(pageable);
         return convertToProjectSeqNameDtoPage(projectPage);
     }
 
@@ -110,8 +110,8 @@ public class ProjectService {
 
     @Transactional
     public ProjectAuthoritiesMemberSeqDto createProjectAuthorities(Long memberSeq, Project project, String role){
-        ProjectAuthorities newProjectMember = ProjectAuthorities.builder()
-                .projectAuthoritiesPk(new ProjectAuthorities.ProjectAuthoritiesPk(project.getProjectSeq(), memberSeq))
+        ProjectAuthority newProjectMember = ProjectAuthority.builder()
+                .projectAuthoritiesPk(new ProjectAuthority.ProjectAuthoritiesPk(project.getProjectSeq(), memberSeq))
                 .project(project)
                 .projectAuthority(role)
                 .build();
@@ -128,7 +128,7 @@ public class ProjectService {
     @Transactional
     public void resisterProjectMembers(Long projectSeq,
                                        Long memberSeq,
-                                       ProjectAuthoritiesResisterRequestDto projectAuthoritiesResisterRequest){
+                                       ProjectAuthorityResisterRequestDto projectAuthoritiesResisterRequest){
         Project project = projectRepository.findById(projectSeq)
                 .orElseThrow(ProjectNotFoundException::new);
 
@@ -143,13 +143,13 @@ public class ProjectService {
     }
 
     public ProjectAuthoritiesDto getProjectAuthorities(Long projectSeq, Long memberSeq) {
-        ProjectAuthorities projectAuthorities = projectAuthoritiesRepository.findById(new ProjectAuthorities.ProjectAuthoritiesPk(projectSeq, memberSeq))
+        ProjectAuthority projectAuthorities = projectAuthoritiesRepository.findById(new ProjectAuthority.ProjectAuthoritiesPk(projectSeq, memberSeq))
                 .orElseThrow(ProjectPermissionDeniedException::new);
 
         return convertToProjectAuthoritiesDto(projectAuthorities);
     }
 
-    private ProjectAuthoritiesDto convertToProjectAuthoritiesDto(ProjectAuthorities projectAuthorities){
+    private ProjectAuthoritiesDto convertToProjectAuthoritiesDto(ProjectAuthority projectAuthorities){
         return ProjectAuthoritiesDto.builder()
                 .projectSeq(projectAuthorities.getProjectAuthoritiesPk().getProjectSeq())
                 .memberSeq(projectAuthorities.getProjectAuthoritiesPk().getMemberSeq())

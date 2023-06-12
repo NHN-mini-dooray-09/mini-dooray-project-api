@@ -34,7 +34,7 @@ public class Project {
     @OneToMany(mappedBy = "project")
     private List<Milestone> milestones;
     @OneToMany(mappedBy = "project")
-    private List<ProjectAuthorities> projectMembers;
+    private List<ProjectAuthority> projectMembers;
 
     @Builder
     public Project(Long memberSeq, String projectName, String projectDescription, String projectStatus) {

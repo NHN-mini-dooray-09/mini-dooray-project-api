@@ -5,6 +5,6 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class ProjectAuthoritiesResisterRequestDto {
+public class ProjectAuthorityResisterRequestDto {
     private List<Long> projectMembers;
 }

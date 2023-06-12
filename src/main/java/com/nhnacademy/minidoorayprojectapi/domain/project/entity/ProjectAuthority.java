@@ -9,7 +9,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Table(name = "project_authorities")
 @Entity
-public class ProjectAuthorities {
+public class ProjectAuthority {
     @EmbeddedId
     private ProjectAuthoritiesPk projectAuthoritiesPk;
     private String projectAuthority;
@@ -31,7 +31,7 @@ public class ProjectAuthorities {
     }
 
     @Builder
-    public ProjectAuthorities(ProjectAuthoritiesPk projectAuthoritiesPk, String projectAuthority, Project project) {
+    public ProjectAuthority(ProjectAuthoritiesPk projectAuthoritiesPk, String projectAuthority, Project project) {
         this.projectAuthoritiesPk = projectAuthoritiesPk;
         this.projectAuthority = projectAuthority;
         this.project = project;
