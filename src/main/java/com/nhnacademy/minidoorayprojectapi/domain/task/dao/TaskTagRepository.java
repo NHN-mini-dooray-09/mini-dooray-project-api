@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface TaskTagRepository extends JpaRepository<TaskTag, TaskTag.TaskTagPk> {
-    List<Tag> findAllByTask_TaskSeq(Long taskSeq);
+    List<TaskTag> findAllByTask_TaskSeq(Long taskSeq);
 }

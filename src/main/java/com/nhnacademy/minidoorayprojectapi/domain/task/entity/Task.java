@@ -11,7 +11,9 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @NoArgsConstructor
@@ -33,16 +35,16 @@ public class Task {
     private String taskStatus;
     private LocalDateTime taskCreatedAt;
 
-    @OneToMany(mappedBy = "task", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "task", cascade = {CascadeType.MERGE,CascadeType.REMOVE})
     private List<TaskTag> taskTags;
 
     @OneToMany(mappedBy = "task",cascade = CascadeType.REMOVE)
-    private List<Comment> comments;
+    private List<Comment> comments = new ArrayList<>();
 
 
     @Builder
     public Task(Long memberSeq, Project project, Milestone milestone, String taskTitle,
-                String taskContent, String taskStatus) {
+                String taskContent, String taskStatus, List<TaskTag> taskTags) {
         this.memberSeq = memberSeq;
         this.project = project;
         this.milestone = milestone;
@@ -50,13 +52,17 @@ public class Task {
         this.taskContent = taskContent;
         this.taskStatus = taskStatus;
         this.taskCreatedAt = LocalDateTime.now();
+        this.taskTags = Objects.isNull(taskTags) ? new ArrayList<>() : taskTags ;
+        this.comments = new ArrayList<>();
     }
 
-    public void updateTask(String taskTitle, String taskContent, String taskStatus, Milestone milestone) {
+    public void updateTask(String taskTitle, String taskContent, String taskStatus, Milestone milestone,
+                           List<TaskTag> taskTags) {
         this.taskTitle = taskTitle;
         this.taskContent = taskContent;
         this.taskStatus = taskStatus;
         this.milestone = milestone;
+        this.taskTags = taskTags;
     }
 
 }

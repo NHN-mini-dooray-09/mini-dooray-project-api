@@ -16,11 +16,11 @@ public class TaskTag {
 
     @MapsId("taskSeq")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn
+    @JoinColumn(name = "task_seq")
     private Task task;
     @MapsId("tagSeq")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn
+    @JoinColumn(name = "tag_seq")
     private Tag tag;
 
 

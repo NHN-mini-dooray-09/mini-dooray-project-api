@@ -22,7 +22,7 @@ public class Tag {
     @JoinColumn
     private Project project;
 
-    @OneToMany(mappedBy = "tag")
+    @OneToMany(mappedBy = "tag", cascade = CascadeType.REMOVE)
     private List<TaskTag> taskTags;
 
     @Builder
