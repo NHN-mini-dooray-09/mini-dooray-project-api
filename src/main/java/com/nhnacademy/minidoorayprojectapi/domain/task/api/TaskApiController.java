@@ -45,10 +45,9 @@ public class TaskApiController {
 
     @GetMapping("/{project-seq}/{task-seq}")
     public ResponseEntity<TaskDto> getTask(@PathVariable("project-seq") Long projectSeq,
-                                           @PathVariable("task-seq") Long taskSeq,
-                                           @PageableDefault(size = 5, sort = "commentCreatedAt") Pageable pageable){
+                                           @PathVariable("task-seq") Long taskSeq){
         return ResponseEntity.ok()
-                .body(taskService.getTask(projectSeq, taskSeq, pageable));
+                .body(taskService.getTask(projectSeq, taskSeq));
     }
 
     @PatchMapping("/{project-seq}/{task-seq}")

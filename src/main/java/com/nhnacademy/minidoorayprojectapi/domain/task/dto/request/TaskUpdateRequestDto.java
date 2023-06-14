@@ -1,5 +1,6 @@
 package com.nhnacademy.minidoorayprojectapi.domain.task.dto.request;
 
+import lombok.Builder;
 import lombok.Getter;
 
 import javax.validation.constraints.NotBlank;
@@ -19,5 +20,12 @@ public class TaskUpdateRequestDto {
     @NotNull
     private List<Long> tags;
 
-
+    @Builder
+    public TaskUpdateRequestDto(String taskTitle, String taskContent, String taskStatus, Long milestoneSeq, List<Long> tags) {
+        this.taskTitle = taskTitle;
+        this.taskContent = taskContent;
+        this.taskStatus = taskStatus;
+        this.milestoneSeq = milestoneSeq;
+        this.tags = tags;
+    }
 }

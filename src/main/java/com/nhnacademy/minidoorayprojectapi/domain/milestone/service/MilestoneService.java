@@ -30,11 +30,8 @@ public class MilestoneService {
      */
 
     public List<MilestoneDto> getMilestonesByProjectSeq(Long projectSeq){
-        //TODO milestone에서 가져올까
-        List<Milestone> milestones = milestoneRepository.findByProject_ProjectSeq(projectSeq);
         Project project = projectRepository.findById(projectSeq)
-                .orElseThrow(() -> new ProjectNotFoundException("마일스"));
-
+                .orElseThrow(() -> new ProjectNotFoundException("프토젝트를 찾을 수 없습니다."));
         return convertToMilestoneDtoList(project.getMilestones());
     }
 
@@ -54,7 +51,8 @@ public class MilestoneService {
                 .milestoneName(milestoneCreateRequest.getMilestoneName())
                 .milestoneStartDate(milestoneCreateRequest.getMilestoneStartDate())
                 .milestoneEndDate(milestoneCreateRequest.getMilestoneEndDate())
-                .project(projectRepository.findById(projectSeq).orElseThrow(() -> new ProjectNotFoundException("마일스톤")))
+                .project(projectRepository.findById(projectSeq).orElseThrow(
+                        () -> new ProjectNotFoundException("프로젝트를 찾을 수 없음")))
                 .build();
         milestoneRepository.save(newMilestone);
         return convertToMilestoneSeqDto(newMilestone);
