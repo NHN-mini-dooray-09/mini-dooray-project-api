@@ -1,11 +1,10 @@
 package com.nhnacademy.minidoorayprojectapi.domain.task.service;
 
 import com.nhnacademy.minidoorayprojectapi.domain.comment.dao.CommentRepository;
-import com.nhnacademy.minidoorayprojectapi.domain.comment.dto.response.CommentDto;
-import com.nhnacademy.minidoorayprojectapi.domain.comment.entity.Comment;
 import com.nhnacademy.minidoorayprojectapi.domain.milestone.dao.MilestoneRepository;
 import com.nhnacademy.minidoorayprojectapi.domain.milestone.dto.response.MilestoneDto;
 import com.nhnacademy.minidoorayprojectapi.domain.project.dao.ProjectRepository;
+import com.nhnacademy.minidoorayprojectapi.global.exception.AccessDeniedException;
 import com.nhnacademy.minidoorayprojectapi.global.exception.ProjectNotFoundException;
 import com.nhnacademy.minidoorayprojectapi.domain.tag.dao.TagRepository;
 import com.nhnacademy.minidoorayprojectapi.domain.tag.dto.response.TagSeqNameDto;
@@ -19,7 +18,6 @@ import com.nhnacademy.minidoorayprojectapi.domain.task.dto.response.TaskSeqDto;
 import com.nhnacademy.minidoorayprojectapi.domain.task.dto.response.TaskSeqNameAndMemberSeqDto;
 import com.nhnacademy.minidoorayprojectapi.domain.task.entity.Task;
 import com.nhnacademy.minidoorayprojectapi.domain.task.entity.TaskTag;
-import com.nhnacademy.minidoorayprojectapi.global.exception.UnauthorizedAccessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -63,15 +61,16 @@ public class TaskService {
         return new PageImpl<>(taskPageDto,taskPage.getPageable(),taskPage.getTotalElements());
     }
 
-    public TaskDto getTask(Long projectSeq, Long taskSeq, Pageable pageable){
+    public TaskDto getTask(Long projectSeq, Long taskSeq){
         Task task = taskRepository.findByProject_ProjectSeqAndTaskSeq(projectSeq, taskSeq)
-                .orElseThrow(() -> new ProjectNotFoundException("해당 업무"));
-        List<Tag> tags = taskTagRepository.findAllByTask_TaskSeq(taskSeq);
-        Page<Comment> comments = commentRepository.getAllByTask_TaskSeq(taskSeq,pageable);
-        return convertToTaskDto(task, tags, comments);
+                .orElseThrow(() -> new ProjectNotFoundException("해당 업무를 찾을 수 없습니다."));
+        List<Tag> tags = taskTagRepository.findAllByTask_TaskSeq(taskSeq).stream()
+                .map(TaskTag::getTag)
+                .collect(Collectors.toList());
+        return convertToTaskDto(task, tags);
     }
 
-    private TaskDto convertToTaskDto(Task task, List<Tag> tags, Page<Comment> comments){
+    private TaskDto convertToTaskDto(Task task, List<Tag> tags){
         return TaskDto.builder()
                 .taskSeq(task.getTaskSeq())
                 .taskTitle(task.getTaskTitle())
@@ -96,17 +95,6 @@ public class TaskService {
                                         .build())
                                 .collect(Collectors.toList())
                 )
-                .comments(
-                        new PageImpl<>(task.getComments().stream()
-                                .map(comment -> new CommentDto(comment.getCommentSeq(),
-                                        comment.getMemberSeq(),
-                                        comment.getCommentContent(),
-                                        comment.getCommentCreatedAt()))
-                                .collect(Collectors.toList()),
-                                comments.getPageable(),
-                                comments.getTotalElements()
-                        )
-                )
                 .build();
     }
 
@@ -120,9 +108,11 @@ public class TaskService {
      */
     @Transactional
     public TaskSeqDto createTask(Long projectSeq,Long memberSeq ,TaskCreateRequestDto taskCreateRequest){
+
         Task newTask = Task.builder()
                 .memberSeq(memberSeq)
-                .project(projectRepository.findById(projectSeq).orElseThrow(() -> new ProjectNotFoundException("프로젝트")))
+                .project(projectRepository.findById(projectSeq)
+                            .orElseThrow(() -> new ProjectNotFoundException("프로젝트를 찾을 수 없습니다.")))
                 .taskTitle(taskCreateRequest.getTaskTitle())
                 .taskContent(taskCreateRequest.getTaskContent())
                 .taskStatus(taskCreateRequest.getTaskStatus())
@@ -132,29 +122,43 @@ public class TaskService {
         taskCreateRequest.getTags()
                 .forEach(tagSeq->{
                     Tag tag = tagRepository.findByProject_ProjectSeqAndTagSeq(projectSeq,tagSeq)
-                            .orElseThrow(() -> new ProjectNotFoundException("해당 태그"));
-                    TaskTag.builder()
+                            .orElseThrow(() -> new ProjectNotFoundException("해당 태그를 찾을 수 없습니다."));
+
+                    taskTagRepository.save(TaskTag.builder()
                             .taskTagPk(new TaskTag.TaskTagPk(newTask.getTaskSeq(), tag.getTagSeq()))
                             .tag(tag)
                             .task(newTask)
-                            .build();
+                            .build());
                 });
-
         return convertToTaskSeqDto(newTask);
     }
 
     @Transactional
-    public TaskSeqDto updateTask(Long projectSeq, Long taskSeq, TaskUpdateRequestDto taskUpdateRequest){
+    public TaskSeqDto updateTask(Long projectSeq, Long taskSeq, Long memberSeq ,TaskUpdateRequestDto taskUpdateRequest){
         Task task = taskRepository.findByProject_ProjectSeqAndTaskSeq(projectSeq, taskSeq)
-                .orElseThrow(() -> new ProjectNotFoundException("해당 업무"));
-        if(!task.getMemberSeq().equals(task.getMemberSeq())){
-            throw new UnauthorizedAccessException();
+                .orElseThrow(() -> new ProjectNotFoundException("해당 업무를 찾을 수 없습니다."));
+
+        if(!memberSeq.equals(task.getMemberSeq())){
+            throw new AccessDeniedException();
         }
+
         task.updateTask(taskUpdateRequest.getTaskTitle(),taskUpdateRequest.getTaskContent(),
                 taskUpdateRequest.getTaskStatus(),
                 milestoneRepository.findByProject_ProjectSeqAndMilestoneSeq(projectSeq,
                         taskUpdateRequest.getMilestoneSeq())
-                        .orElseThrow(() -> new ProjectNotFoundException("프로젝트를 찾을 수 없습니다.")));
+                        .orElseThrow(() -> new ProjectNotFoundException("프로젝트를 찾을 수 없습니다.")),
+                        taskUpdateRequest.getTags().stream()
+                        .map(tagSeq -> {
+                            Tag tag = tagRepository.findByProject_ProjectSeqAndTagSeq(projectSeq,tagSeq)
+                            .orElseThrow(() -> new ProjectNotFoundException("해당 태그를 찾을 수 없습니다."));
+                            return TaskTag.builder()
+                                    .taskTagPk(new TaskTag.TaskTagPk(task.getTaskSeq(), tag.getTagSeq()))
+                                    .tag(tag)
+                                    .task(task)
+                                    .build();
+
+                        }).collect(Collectors.toList())
+        );
         return convertToTaskSeqDto(task);
     }
 
@@ -163,11 +167,10 @@ public class TaskService {
         return new TaskSeqDto(task.getTaskSeq());
     }
 
-    //TODO task 삭제할 때 tag도 함께 삭제해야하나? 다대다??
     @Transactional
     public void deleteTask(Long taskSeq, Long memberSeq){
-        if(taskRepository.existsByTaskSeqAndAndMemberSeq(taskSeq,memberSeq)){
-            throw new UnauthorizedAccessException();
+        if(!taskRepository.existsByTaskSeqAndAndMemberSeq(taskSeq,memberSeq)){
+            throw new AccessDeniedException();
         }
         taskRepository.deleteById(taskSeq);
     }

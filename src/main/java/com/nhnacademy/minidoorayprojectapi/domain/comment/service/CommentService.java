@@ -6,9 +6,9 @@ import com.nhnacademy.minidoorayprojectapi.domain.comment.dto.request.CommentUpd
 import com.nhnacademy.minidoorayprojectapi.domain.comment.dto.response.CommentDto;
 import com.nhnacademy.minidoorayprojectapi.domain.comment.dto.response.CommentSeqDto;
 import com.nhnacademy.minidoorayprojectapi.domain.comment.entity.Comment;
+import com.nhnacademy.minidoorayprojectapi.global.exception.AccessDeniedException;
 import com.nhnacademy.minidoorayprojectapi.global.exception.ProjectNotFoundException;
 import com.nhnacademy.minidoorayprojectapi.domain.task.dao.TaskRepository;
-import com.nhnacademy.minidoorayprojectapi.global.exception.UnauthorizedAccessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -29,6 +29,7 @@ public class CommentService {
 
 
     public Page<CommentDto> getComments(Long projectSeq, Long taskSeq, Pageable pageable){
+        //TODO task validation check 할까
         return convertToCommentDtoPage(commentRepository.getAllByTask_TaskSeq(taskSeq, pageable));
     }
 
@@ -55,7 +56,7 @@ public class CommentService {
     public CommentSeqDto updateComment(Long projectSeq, Long taskSeq, Long memberSeq, Long commentSeq,
                                        CommentUpdateRequestDto commentUpdateRequestDto){
         if(!commentRepository.existsByCommentSeqAndMemberSeq(commentSeq, memberSeq)){
-            throw new UnauthorizedAccessException();
+            throw new AccessDeniedException();
         }
         Comment comment = commentRepository.findByTask_Project_ProjectSeqAndTask_TaskSeqAndCommentSeq
                         (projectSeq, taskSeq, commentSeq)
@@ -71,7 +72,7 @@ public class CommentService {
     @Transactional
     public void deleteComment(Long projectSeq, Long taskSeq, Long memberSeq, Long commentSeq){
         if(!commentRepository.existsByCommentSeqAndMemberSeq(commentSeq, memberSeq)){
-            throw new UnauthorizedAccessException();
+            throw new AccessDeniedException();
         }
         commentRepository.deleteById(commentSeq);
     }

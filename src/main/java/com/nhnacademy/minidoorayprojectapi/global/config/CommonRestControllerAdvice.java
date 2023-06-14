@@ -2,7 +2,7 @@ package com.nhnacademy.minidoorayprojectapi.global.config;
 
 import com.nhnacademy.minidoorayprojectapi.global.exception.ExceptionResponse;
 import com.nhnacademy.minidoorayprojectapi.global.exception.ProjectNotFoundException;
-import com.nhnacademy.minidoorayprojectapi.global.exception.UnauthorizedAccessException;
+import com.nhnacademy.minidoorayprojectapi.global.exception.AccessDeniedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
@@ -25,11 +25,11 @@ public class CommonRestControllerAdvice {
         return new ResponseEntity<>(exceptionResponse,HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(UnauthorizedAccessException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
     public ResponseEntity<ExceptionResponse> unauthorizedAccessError(RuntimeException exception){
-        ExceptionResponse exceptionResponse = new ExceptionResponse(exception.getMessage(), HttpStatus.UNAUTHORIZED.value());
-        return new ResponseEntity<>(exceptionResponse,HttpStatus.UNAUTHORIZED);
+        ExceptionResponse exceptionResponse = new ExceptionResponse(exception.getMessage(), HttpStatus.FORBIDDEN.value());
+        return new ResponseEntity<>(exceptionResponse,HttpStatus.FORBIDDEN);
     }
 
 
