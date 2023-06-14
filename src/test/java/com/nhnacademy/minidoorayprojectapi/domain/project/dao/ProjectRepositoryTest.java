@@ -2,12 +2,10 @@ package com.nhnacademy.minidoorayprojectapi.domain.project.dao;
 
 import com.nhnacademy.minidoorayprojectapi.domain.project.entity.Project;
 import com.nhnacademy.minidoorayprojectapi.global.exception.ProjectNotFoundException;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -22,6 +20,14 @@ class ProjectRepositoryTest {
 
     @Autowired
     ProjectRepository projectRepository;
+    @Autowired
+    TestEntityManager testEntityManager;
+
+
+    @BeforeEach
+    public void setUp(){
+
+    }
 
     @Test
     @Order(1)

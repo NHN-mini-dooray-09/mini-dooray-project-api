@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import java.util.List;
 
@@ -17,11 +18,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 class TaskTagRepositoryTest {
     @Autowired
-    TaskRepository taskRepository;
-    @Autowired
-    TagRepository tagRepository;
+    TestEntityManager testEntityManager;
     @Autowired
     TaskTagRepository taskTagRepository;
+
 
     Task task1;
     Tag tag1;
@@ -30,10 +30,10 @@ class TaskTagRepositoryTest {
     public void setUp(){
         task1 = Task.builder()
             .build();
-        taskRepository.save(task1);
+        testEntityManager.persist(task1);
 
         tag1 = Tag.builder().build();
-        tagRepository.save(tag1);
+        testEntityManager.persist(tag1);
     }
 
     @Test
@@ -54,16 +54,7 @@ class TaskTagRepositoryTest {
     }
 
     @Test
-    void testFindAllByTask_TaskSeq() {
-
-        Task task1 = Task.builder()
-                .build();
-        taskRepository.save(task1);
-
-        Tag tag1 = Tag.builder().build();
-        Tag tag2 = Tag.builder().build();
-        tagRepository.save(tag1);
-        tagRepository.save(tag2);
+    void testFindTaskTagAllByTask_TaskSeq() {
 
         TaskTag taskTag1 = TaskTag.builder()
                 .taskTagPk(new TaskTag.TaskTagPk(task1.getTaskSeq(),tag1.getTagSeq()))

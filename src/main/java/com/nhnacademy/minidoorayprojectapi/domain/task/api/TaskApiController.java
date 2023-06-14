@@ -54,13 +54,14 @@ public class TaskApiController {
     @PatchMapping("/{project-seq}/{task-seq}")
     public ResponseEntity<TaskSeqDto> updateTask(@PathVariable("project-seq") Long projectSeq,
                                                  @PathVariable("task-seq") Long taskSeq,
+                                                 @RequestParam("member-seq")Long memberSeq,
                                                  @Valid @RequestBody TaskUpdateRequestDto taskUpdateRequest,
                                                  BindingResult bindingResult){
         if(bindingResult.hasErrors()){
             throw new ValidationFailedException(bindingResult);
         }
         return ResponseEntity.ok()
-                .body(taskService.updateTask(projectSeq, taskSeq, taskUpdateRequest));
+                .body(taskService.updateTask(projectSeq, taskSeq, memberSeq,taskUpdateRequest));
     }
 
     @DeleteMapping("/{project-seq}/{task-seq}")
