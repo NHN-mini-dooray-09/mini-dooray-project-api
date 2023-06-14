@@ -9,10 +9,11 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Table(name = "project_authorities")
 @Entity
-public class ProjectAuthorities {
+public class ProjectAuthority {
     @EmbeddedId
     private ProjectAuthoritiesPk projectAuthoritiesPk;
-    private String projectAuthority;
+    @Column(name = "project_authority")
+    private String authority;
     @MapsId("projectSeq")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_seq")
@@ -31,9 +32,9 @@ public class ProjectAuthorities {
     }
 
     @Builder
-    public ProjectAuthorities(ProjectAuthoritiesPk projectAuthoritiesPk, String projectAuthority, Project project) {
+    public ProjectAuthority(ProjectAuthoritiesPk projectAuthoritiesPk, String authority, Project project) {
         this.projectAuthoritiesPk = projectAuthoritiesPk;
-        this.projectAuthority = projectAuthority;
+        this.authority = authority;
         this.project = project;
     }
 }

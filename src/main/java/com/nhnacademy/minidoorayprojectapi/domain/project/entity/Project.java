@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -33,8 +34,8 @@ public class Project {
     private List<Tag> tags;
     @OneToMany(mappedBy = "project")
     private List<Milestone> milestones;
-    @OneToMany(mappedBy = "project")
-    private List<ProjectAuthorities> projectMembers;
+    @OneToMany(mappedBy = "project", cascade = CascadeType.PERSIST)
+    private List<ProjectAuthority> projectMembers;
 
     @Builder
     public Project(Long memberSeq, String projectName, String projectDescription, String projectStatus) {
@@ -43,24 +44,21 @@ public class Project {
         this.projectDescription = projectDescription;
         this.projectStatus = projectStatus;
         this.projectCreatedAt = LocalDateTime.now();
+        this.tasks = new ArrayList<>();
+        this.tags = new ArrayList<>();
+        this.milestones = new ArrayList<>();
+        this.projectMembers = new ArrayList<>();
     }
 
-    public void updateProjectName(String projectName) {
-        this.projectName = projectName;
-    }
-
-    public void updateProjectDescription(String projectDescription) {
-        this.projectDescription = projectDescription;
-    }
-
-    public void updateProjectStatus(String projectStatus) {
-        this.projectStatus = projectStatus;
-    }
-
-    public void updateProject(String projectName, String projectStatus, String projectDescription){
+    public void updateProject(String projectName, String projectStatus, String projectDescription,
+                              List<Task> tasks, List<Tag> tags, List<Milestone> milestones, List<ProjectAuthority> projectMembers){
         this.projectName = projectName;
         this.projectStatus = projectStatus;
         this.projectDescription = projectDescription;
+        this.tasks = tasks;
+        this.tags = tags;
+        this.milestones = milestones;
+        this.projectMembers = projectMembers;
     }
 
 

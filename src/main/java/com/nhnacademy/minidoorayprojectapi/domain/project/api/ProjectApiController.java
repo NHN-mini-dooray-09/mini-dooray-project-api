@@ -1,6 +1,6 @@
 package com.nhnacademy.minidoorayprojectapi.domain.project.api;
 
-import com.nhnacademy.minidoorayprojectapi.domain.project.dto.request.ProjectAuthoritiesResisterRequestDto;
+import com.nhnacademy.minidoorayprojectapi.domain.project.dto.request.ProjectAuthorityResisterRequestDto;
 import com.nhnacademy.minidoorayprojectapi.domain.project.dto.request.ProjectCreateRequestDto;
 import com.nhnacademy.minidoorayprojectapi.domain.project.dto.request.ProjectUpdateRequestDto;
 import com.nhnacademy.minidoorayprojectapi.domain.project.dto.response.ProjectDto;
@@ -15,10 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping("/projects")
@@ -31,17 +29,15 @@ public class ProjectApiController {
 
     @GetMapping("/all")
     public ResponseEntity<Page<ProjectSeqNameDto>> getProjectAll( @PageableDefault(size = 10, sort = "projectSeq")
-                                                                      Pageable pageable) {
-        return ResponseEntity.ok(projectService.getProjectAll(pageable));
+                                                                      Pageable pageable,
+                                                                  @RequestParam("member-seq") Long memberSeq) {
+        return ResponseEntity.ok(projectService.getProjectAll(pageable, memberSeq));
     }
 
-    //TODO GetMapping은 webconfig에서 처리한다.
     @PostMapping
     public ResponseEntity<ProjectSeqDto> createProject(@Valid @RequestBody ProjectCreateRequestDto projectRequest,
                                                         BindingResult bindingResult,
-//                                                       HttpSession session,
                                                        @RequestParam("member-seq")Long memberSeq){
-//        ProjectSeqDto seq = projectService.createProject(projectRequest,(Long) session.getAttribute("memberSeq"));
         if(bindingResult.hasErrors()){
             throw new ValidationFailedException(bindingResult);
         }
@@ -51,7 +47,6 @@ public class ProjectApiController {
 
     @GetMapping("/{project-seq}")
     public ResponseEntity<ProjectDto> getProject(@PathVariable("project-seq") Long projectSeq,
-//                                                 HttpSession session,
                                                  @RequestParam("member-seq")Long memberSeq){
         ProjectDto projectDto = projectService.getProject(projectSeq,memberSeq);
         return ResponseEntity.ok().body(projectDto);
@@ -61,11 +56,8 @@ public class ProjectApiController {
     public ResponseEntity<ProjectSeqDto> updateProject(@PathVariable("project-seq") Long projectSeq,
                                                        @Valid @RequestBody ProjectUpdateRequestDto projectRequest,
                                                         BindingResult bindingResult,
-//                                                       HttpSession session,
                                                        @RequestParam("member-seq")Long memberSeq){
-//        ProjectSeqDto seq = projectService.updateProject(projectSeq,
-//                projectRequest,
-//                (Long) session.getAttribute("memberSeq"));
+
         if(bindingResult.hasErrors()){
             throw new ValidationFailedException(bindingResult);
         }
@@ -77,13 +69,9 @@ public class ProjectApiController {
 
     @PostMapping("/{project-seq}/members")
     public ResponseEntity<Void> resisterProjectMember(@PathVariable("project-seq") Long projectSeq,
-                                                      @Valid @RequestBody ProjectAuthoritiesResisterRequestDto projectAuthoritiesResisterRequest,
+                                                      @Valid @RequestBody ProjectAuthorityResisterRequestDto projectAuthoritiesResisterRequest,
                                                         BindingResult bindingResult,
-//                                                      HttpSession session,
                                                       @RequestParam("member-seq")Long memberSeq){
-//        projectService.resisterProjectMembers(projectSeq,
-//                (Long) session.getAttribute("memberSeq"),
-//                projectAuthoritiesResisterRequest);
         if(bindingResult.hasErrors()){
             throw new ValidationFailedException(bindingResult);
         }

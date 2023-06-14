@@ -1,5 +1,5 @@
 ### 전체 프로젝트
-GET localhost:8080/projects/all
+GET localhost:8080/projects/all?member-seq=1
 
 
 ### 프로젝트 등록

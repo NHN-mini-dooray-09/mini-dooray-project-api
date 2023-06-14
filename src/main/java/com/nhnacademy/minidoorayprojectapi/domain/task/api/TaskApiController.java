@@ -45,9 +45,10 @@ public class TaskApiController {
 
     @GetMapping("/{project-seq}/{task-seq}")
     public ResponseEntity<TaskDto> getTask(@PathVariable("project-seq") Long projectSeq,
-                                           @PathVariable("task-seq") Long taskSeq){
+                                           @PathVariable("task-seq") Long taskSeq,
+                                           @PageableDefault(size = 5, sort = "commentCreatedAt") Pageable pageable){
         return ResponseEntity.ok()
-                .body(taskService.getTask(projectSeq, taskSeq));
+                .body(taskService.getTask(projectSeq, taskSeq, pageable));
     }
 
     @PatchMapping("/{project-seq}/{task-seq}")
@@ -64,8 +65,9 @@ public class TaskApiController {
 
     @DeleteMapping("/{project-seq}/{task-seq}")
     public ResponseEntity<Void> deleteTask(@PathVariable("project-seq") Long projectSeq,
-                                           @PathVariable("task-seq") Long taskSeq){
-        taskService.deleteTask(taskSeq);
+                                           @PathVariable("task-seq") Long taskSeq,
+                                           @RequestParam("member-seq")Long memberSeq){
+        taskService.deleteTask(taskSeq, memberSeq);
         return ResponseEntity.noContent()
                 .build();
     }

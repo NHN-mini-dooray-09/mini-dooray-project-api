@@ -1,56 +1,82 @@
 package com.nhnacademy.minidoorayprojectapi.domain.project.dao;
 
 import com.nhnacademy.minidoorayprojectapi.domain.project.entity.Project;
-import com.nhnacademy.minidoorayprojectapi.domain.project.entity.ProjectAuthorities;
-import com.nhnacademy.minidoorayprojectapi.domain.project.exception.ProjectNotFoundException;
+import com.nhnacademy.minidoorayprojectapi.domain.project.entity.ProjectAuthority;
+import com.nhnacademy.minidoorayprojectapi.global.exception.ProjectNotFoundException;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 
 @DataJpaTest
-@ActiveProfiles("dev")
-@Transactional
+@TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
 class ProjectAuthoritiesRepositoryTest {
     @Autowired
-    ProjectAuthoritiesRepository projectAuthoritiesRepository;
+    ProjectAuthorityRepository projectAuthoritiesRepository;
     @Autowired
     ProjectRepository projectRepository;
 
     @Test
+    @Order(1)
     void testSave(){
         Project project1 = Project.builder()
                 .memberSeq(1L)
                 .projectName("project1")
                 .projectDescription("test project1")
                 .projectStatus("할일")
-                .projectCreatedAt(LocalDateTime.now())
                 .build();
         projectRepository.save(project1);
 
-        ProjectAuthorities newProjectMember = ProjectAuthorities.builder()
-                .projectAuthoritiesPk(new ProjectAuthorities.ProjectAuthoritiesPk(1L, 1L))
-                .project(projectRepository.findById(project1.getProjectSeq()).orElseThrow(ProjectNotFoundException::new))
-                .projectAuthority("PROJECT_ROLE_TEST")
+        ProjectAuthority newProjectMember = ProjectAuthority.builder()
+                .projectAuthoritiesPk(new ProjectAuthority.ProjectAuthoritiesPk(1L, 1L))
+                .project(projectRepository.findById(project1.getProjectSeq()).orElseThrow(()->new ProjectNotFoundException("프로젝트")))
+                .authority("PROJECT_ROLE_TEST")
                 .build();
-            Long result = projectAuthoritiesRepository.save(newProjectMember).getProjectAuthoritiesPk().getMemberSeq();
-        assertThat(result).isEqualTo(1L);
+            ProjectAuthority actual = projectAuthoritiesRepository.save(newProjectMember);
+        assertThat(actual.getProjectAuthoritiesPk().getMemberSeq()).isEqualTo(project1.getMemberSeq());
+        assertThat(actual.getProject().getProjectSeq()).isEqualTo(project1.getProjectSeq());
     }
 
     @Test
-    void testGetProjects(){
+    @Order(2)
+    void testFindAllByProjectAuthoritiesMembers(){
+        Project project1 = Project.builder()
+                .memberSeq(1L)
+                .projectName("project1")
+                .projectDescription("test project1")
+                .projectStatus("할일")
+                .build();
+        projectRepository.save(project1);
+        ProjectAuthority projectMember1 = ProjectAuthority.builder()
+                .projectAuthoritiesPk(new ProjectAuthority.ProjectAuthoritiesPk(project1.getProjectSeq(), 2L))
+                .project(projectRepository.findById(project1.getProjectSeq()).orElseThrow(()->new ProjectNotFoundException("프로젝트")))
+                .authority("PROJECT_ROLE_MEMBER")
+                .build();
+        ProjectAuthority projectMember2 = ProjectAuthority.builder()
+                .projectAuthoritiesPk(new ProjectAuthority.ProjectAuthoritiesPk(project1.getProjectSeq(), 3L))
+                .project(projectRepository.findById(project1.getProjectSeq()).orElseThrow(()->new ProjectNotFoundException("프로젝트")))
+                .authority("PROJECT_ROLE_ADMIN")
+                .build();
+        ProjectAuthority projectMember3 = ProjectAuthority.builder()
+                .projectAuthoritiesPk(new ProjectAuthority.ProjectAuthoritiesPk(project1.getProjectSeq(), 4L))
+                .project(projectRepository.findById(project1.getProjectSeq()).orElseThrow(()->new ProjectNotFoundException("프로젝트")))
+                .authority("PROJECT_ROLE_MEMBER")
+                .build();
+        projectAuthoritiesRepository.save(projectMember1);
+        projectAuthoritiesRepository.save(projectMember2);
+        projectAuthoritiesRepository.save(projectMember3);
 
-        projectRepository.findAll().get(0);
+        List<ProjectAuthority> actual = projectAuthoritiesRepository.findAllByProjectAuthoritiesPk_ProjectSeqAndAuthority
+                (project1.getProjectSeq(), "PROJECT_ROLE_MEMBER");
+
+        assertThat(actual).hasSize(2);
+
     }
-
-
 }

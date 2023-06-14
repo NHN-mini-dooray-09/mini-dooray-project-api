@@ -6,10 +6,9 @@ import com.nhnacademy.minidoorayprojectapi.domain.milestone.dto.request.Mileston
 import com.nhnacademy.minidoorayprojectapi.domain.milestone.dto.response.MilestoneDto;
 import com.nhnacademy.minidoorayprojectapi.domain.milestone.dto.response.MilestoneSeqDto;
 import com.nhnacademy.minidoorayprojectapi.domain.milestone.entity.Milestone;
-import com.nhnacademy.minidoorayprojectapi.domain.milestone.exception.MilestoneNotFoundException;
 import com.nhnacademy.minidoorayprojectapi.domain.project.dao.ProjectRepository;
 import com.nhnacademy.minidoorayprojectapi.domain.project.entity.Project;
-import com.nhnacademy.minidoorayprojectapi.domain.project.exception.ProjectNotFoundException;
+import com.nhnacademy.minidoorayprojectapi.global.exception.ProjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,8 +30,10 @@ public class MilestoneService {
      */
 
     public List<MilestoneDto> getMilestonesByProjectSeq(Long projectSeq){
+        //TODO milestone에서 가져올까
+        List<Milestone> milestones = milestoneRepository.findByProject_ProjectSeq(projectSeq);
         Project project = projectRepository.findById(projectSeq)
-                .orElseThrow(ProjectNotFoundException::new);
+                .orElseThrow(() -> new ProjectNotFoundException("마일스"));
 
         return convertToMilestoneDtoList(project.getMilestones());
     }
@@ -53,7 +54,7 @@ public class MilestoneService {
                 .milestoneName(milestoneCreateRequest.getMilestoneName())
                 .milestoneStartDate(milestoneCreateRequest.getMilestoneStartDate())
                 .milestoneEndDate(milestoneCreateRequest.getMilestoneEndDate())
-                .project(projectRepository.findById(projectSeq).orElseThrow(ProjectNotFoundException::new))
+                .project(projectRepository.findById(projectSeq).orElseThrow(() -> new ProjectNotFoundException("마일스톤")))
                 .build();
         milestoneRepository.save(newMilestone);
         return convertToMilestoneSeqDto(newMilestone);
@@ -63,7 +64,7 @@ public class MilestoneService {
     public MilestoneSeqDto updateMilestone(Long projectSeq,Long milestoneSeq, MilestoneUpdateRequestDto milestoneUpdateRequest){
 
         Milestone milestone = milestoneRepository.findByProject_ProjectSeqAndMilestoneSeq(projectSeq,milestoneSeq)
-                        .orElseThrow(MilestoneNotFoundException::new);
+                        .orElseThrow(() -> new ProjectNotFoundException("마일스톤을 찾을 수 없습니다."));
         milestone.updateMilestone(milestoneUpdateRequest.getMilestoneName(),
                 milestoneUpdateRequest.getMilestoneStartDate(),
                 milestoneUpdateRequest.getMilestoneEndDate());

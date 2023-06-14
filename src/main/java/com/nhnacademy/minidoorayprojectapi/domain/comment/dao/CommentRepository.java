@@ -5,11 +5,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface CommentRepository extends JpaRepository<Comment,Long> {
     Page<Comment> getAllByTask_TaskSeq(Long taskSeq, Pageable pageable);
-    Optional<Comment> findByTask_Project_ProjectSeqAndTask_TaskSeqAndCommentSeqAndMemberSeq
-            (Long projectSeq, Long taskSeq, Long commentSeq, Long memberSeq);
+    Optional<Comment> findByTask_Project_ProjectSeqAndTask_TaskSeqAndCommentSeq
+            (Long projectSeq, Long taskSeq, Long commentSeq);
+
+    boolean existsByCommentSeqAndMemberSeq(Long commentSeq, Long memberSeq);
+
+
 }

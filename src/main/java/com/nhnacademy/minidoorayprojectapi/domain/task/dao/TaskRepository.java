@@ -11,4 +11,6 @@ public interface TaskRepository extends JpaRepository<Task,Long> {
     Page<Task> getAllByProject_ProjectSeq(Pageable pageable, Long projectSeq);
 
     Optional<Task> findByProject_ProjectSeqAndTaskSeq(Long projectSeq, Long taskSeq);
+
+    boolean existsByTaskSeqAndAndMemberSeq(Long taskSeq, Long memberSeq);
 }

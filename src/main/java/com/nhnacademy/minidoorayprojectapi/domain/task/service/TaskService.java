@@ -1,14 +1,15 @@
 package com.nhnacademy.minidoorayprojectapi.domain.task.service;
 
+import com.nhnacademy.minidoorayprojectapi.domain.comment.dao.CommentRepository;
+import com.nhnacademy.minidoorayprojectapi.domain.comment.dto.response.CommentDto;
+import com.nhnacademy.minidoorayprojectapi.domain.comment.entity.Comment;
 import com.nhnacademy.minidoorayprojectapi.domain.milestone.dao.MilestoneRepository;
 import com.nhnacademy.minidoorayprojectapi.domain.milestone.dto.response.MilestoneDto;
-import com.nhnacademy.minidoorayprojectapi.domain.milestone.exception.MilestoneNotFoundException;
 import com.nhnacademy.minidoorayprojectapi.domain.project.dao.ProjectRepository;
-import com.nhnacademy.minidoorayprojectapi.domain.project.exception.ProjectNotFoundException;
+import com.nhnacademy.minidoorayprojectapi.global.exception.ProjectNotFoundException;
 import com.nhnacademy.minidoorayprojectapi.domain.tag.dao.TagRepository;
 import com.nhnacademy.minidoorayprojectapi.domain.tag.dto.response.TagSeqNameDto;
 import com.nhnacademy.minidoorayprojectapi.domain.tag.entity.Tag;
-import com.nhnacademy.minidoorayprojectapi.domain.tag.exception.TagNotFoundException;
 import com.nhnacademy.minidoorayprojectapi.domain.task.dao.TaskRepository;
 import com.nhnacademy.minidoorayprojectapi.domain.task.dao.TaskTagRepository;
 import com.nhnacademy.minidoorayprojectapi.domain.task.dto.request.TaskCreateRequestDto;
@@ -18,7 +19,7 @@ import com.nhnacademy.minidoorayprojectapi.domain.task.dto.response.TaskSeqDto;
 import com.nhnacademy.minidoorayprojectapi.domain.task.dto.response.TaskSeqNameAndMemberSeqDto;
 import com.nhnacademy.minidoorayprojectapi.domain.task.entity.Task;
 import com.nhnacademy.minidoorayprojectapi.domain.task.entity.TaskTag;
-import com.nhnacademy.minidoorayprojectapi.domain.task.exception.TaskNotFoundException;
+import com.nhnacademy.minidoorayprojectapi.global.exception.UnauthorizedAccessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -39,6 +40,7 @@ public class TaskService {
     private final MilestoneRepository milestoneRepository;
     private final TagRepository tagRepository;
     private final TaskTagRepository taskTagRepository;
+    private final CommentRepository commentRepository;
 
 
     /**
@@ -61,14 +63,15 @@ public class TaskService {
         return new PageImpl<>(taskPageDto,taskPage.getPageable(),taskPage.getTotalElements());
     }
 
-    public TaskDto getTask(Long projectSeq, Long taskSeq){
+    public TaskDto getTask(Long projectSeq, Long taskSeq, Pageable pageable){
         Task task = taskRepository.findByProject_ProjectSeqAndTaskSeq(projectSeq, taskSeq)
-                .orElseThrow(TaskNotFoundException::new);
+                .orElseThrow(() -> new ProjectNotFoundException("해당 업무"));
         List<Tag> tags = taskTagRepository.findAllByTask_TaskSeq(taskSeq);
-        return convertToTaskDto(task, tags);
+        Page<Comment> comments = commentRepository.getAllByTask_TaskSeq(taskSeq,pageable);
+        return convertToTaskDto(task, tags, comments);
     }
 
-    private TaskDto convertToTaskDto(Task task, List<Tag> tags){
+    private TaskDto convertToTaskDto(Task task, List<Tag> tags, Page<Comment> comments){
         return TaskDto.builder()
                 .taskSeq(task.getTaskSeq())
                 .taskTitle(task.getTaskTitle())
@@ -93,6 +96,17 @@ public class TaskService {
                                         .build())
                                 .collect(Collectors.toList())
                 )
+                .comments(
+                        new PageImpl<>(task.getComments().stream()
+                                .map(comment -> new CommentDto(comment.getCommentSeq(),
+                                        comment.getMemberSeq(),
+                                        comment.getCommentContent(),
+                                        comment.getCommentCreatedAt()))
+                                .collect(Collectors.toList()),
+                                comments.getPageable(),
+                                comments.getTotalElements()
+                        )
+                )
                 .build();
     }
 
@@ -108,7 +122,7 @@ public class TaskService {
     public TaskSeqDto createTask(Long projectSeq,Long memberSeq ,TaskCreateRequestDto taskCreateRequest){
         Task newTask = Task.builder()
                 .memberSeq(memberSeq)
-                .project(projectRepository.findById(projectSeq).orElseThrow(ProjectNotFoundException::new))
+                .project(projectRepository.findById(projectSeq).orElseThrow(() -> new ProjectNotFoundException("프로젝트")))
                 .taskTitle(taskCreateRequest.getTaskTitle())
                 .taskContent(taskCreateRequest.getTaskContent())
                 .taskStatus(taskCreateRequest.getTaskStatus())
@@ -118,7 +132,7 @@ public class TaskService {
         taskCreateRequest.getTags()
                 .forEach(tagSeq->{
                     Tag tag = tagRepository.findByProject_ProjectSeqAndTagSeq(projectSeq,tagSeq)
-                            .orElseThrow(TagNotFoundException::new);
+                            .orElseThrow(() -> new ProjectNotFoundException("해당 태그"));
                     TaskTag.builder()
                             .taskTagPk(new TaskTag.TaskTagPk(newTask.getTaskSeq(), tag.getTagSeq()))
                             .tag(tag)
@@ -129,24 +143,18 @@ public class TaskService {
         return convertToTaskSeqDto(newTask);
     }
 
-//    public void createTaskTag(Long projectSeq, Long taskSeq, Task task){
-//        Tag tag = tagRepository.findByProject_ProjectSeqAndTagSeq(projectSeq,taskSeq)
-//                .orElseThrow(TagNotFoundException::new);
-//        TaskTag.builder()
-//                .taskTagPk(new TaskTag.TaskTagPk(task.getTaskSeq(), tag.getTagSeq()))
-//                .tag(tag)
-//                .task(task)
-//                .build();
-//    }
-
     @Transactional
     public TaskSeqDto updateTask(Long projectSeq, Long taskSeq, TaskUpdateRequestDto taskUpdateRequest){
         Task task = taskRepository.findByProject_ProjectSeqAndTaskSeq(projectSeq, taskSeq)
-                .orElseThrow(TaskNotFoundException::new);
+                .orElseThrow(() -> new ProjectNotFoundException("해당 업무"));
+        if(!task.getMemberSeq().equals(task.getMemberSeq())){
+            throw new UnauthorizedAccessException();
+        }
         task.updateTask(taskUpdateRequest.getTaskTitle(),taskUpdateRequest.getTaskContent(),
                 taskUpdateRequest.getTaskStatus(),
                 milestoneRepository.findByProject_ProjectSeqAndMilestoneSeq(projectSeq,
-                        taskUpdateRequest.getMilestoneSeq()).orElseThrow(MilestoneNotFoundException::new));
+                        taskUpdateRequest.getMilestoneSeq())
+                        .orElseThrow(() -> new ProjectNotFoundException("프로젝트를 찾을 수 없습니다.")));
         return convertToTaskSeqDto(task);
     }
 
@@ -157,7 +165,10 @@ public class TaskService {
 
     //TODO task 삭제할 때 tag도 함께 삭제해야하나? 다대다??
     @Transactional
-    public void deleteTask(Long taskSeq){
+    public void deleteTask(Long taskSeq, Long memberSeq){
+        if(taskRepository.existsByTaskSeqAndAndMemberSeq(taskSeq,memberSeq)){
+            throw new UnauthorizedAccessException();
+        }
         taskRepository.deleteById(taskSeq);
     }
 

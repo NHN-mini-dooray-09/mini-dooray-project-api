@@ -12,8 +12,8 @@ Content-Type: application/json
   "taskTitle": "project1-task2",
   "taskContent": "할거 너무 많은데...?",
   "taskStatus": "활성",
-  "milestoneSeq": "",
-  "tags": [1, 2]
+  "milestoneSeq": null,
+  "tags": [1,2]
 }
 
 
