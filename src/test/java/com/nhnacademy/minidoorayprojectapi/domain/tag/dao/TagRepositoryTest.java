@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import java.util.List;
 
@@ -19,11 +20,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class TagRepositoryTest {
 
     @Autowired
-    ProjectRepository projectRepository;
+    TestEntityManager testEntityManager;
     @Autowired
     TagRepository tagRepository;
-    @Autowired
-    TaskTagRepository taskTagRepository;
 
     Project project1;
 
@@ -35,7 +34,7 @@ class TagRepositoryTest {
                 .projectDescription("test project1")
                 .projectStatus("할일")
                 .build();
-        projectRepository.save(project1);
+        testEntityManager.persist(project1);
     }
 
     @Test

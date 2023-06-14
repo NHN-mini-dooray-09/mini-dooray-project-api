@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,18 +19,17 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 class CommentRepositoryTest {
 
-
+    @Autowired
+    TestEntityManager testEntityManager;
     @Autowired
     CommentRepository commentRepository;
-    @Autowired
-    TaskRepository taskRepository;
 
     Task task1;
 
     @BeforeEach
     public void setUp(){
         task1 = Task.builder().build();
-        taskRepository.save(task1);
+        testEntityManager.persist(task1);
     }
 
     @Test

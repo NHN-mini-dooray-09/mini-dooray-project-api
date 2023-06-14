@@ -7,6 +7,7 @@ import com.nhnacademy.minidoorayprojectapi.domain.task.entity.TaskTag;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,12 +20,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class TaskRepositoryTest {
     @Autowired
-    ProjectRepository projectRepository;
+    TestEntityManager testEntityManager;
     @Autowired
     TaskRepository taskRepository;
-
-    @Autowired
-    TaskTagRepository taskTagRepository;
 
     Project project1;
 
@@ -32,7 +30,7 @@ class TaskRepositoryTest {
     public void setUp(){
         project1 = Project.builder()
                 .build();
-        projectRepository.save(project1);
+        testEntityManager.persist(project1);
     }
 
     @Test
@@ -91,8 +89,10 @@ class TaskRepositoryTest {
                 .project(project1)
                 .build();
         taskRepository.save(task1);
+
         Task expected = taskRepository.findByProject_ProjectSeqAndTaskSeq(project1.getProjectSeq(), task1.getTaskSeq())
                 .orElse(null);
+
         assertThat(expected).isNotNull();
 
     }
