@@ -57,14 +57,14 @@ class CommentServiceTest {
     }
 
     @Test
-    void createComment() {
+    void testCreateComment() {
         when(taskRepository.findByProject_ProjectSeqAndTaskSeq(any(),any()))
                 .thenReturn(Optional.of(mock(Task.class)));
 
         when(commentRepository.save(any()))
                 .thenReturn(mock(Comment.class));
 
-        CommentCreateRequestDto commentCreateRequest = CommentCreateRequestDto.builder().build();
+        CommentCreateRequestDto commentCreateRequest = new CommentCreateRequestDto();
 
         commentService.createComment(1L,1L,1L, commentCreateRequest);
 

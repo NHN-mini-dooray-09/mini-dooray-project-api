@@ -44,7 +44,7 @@ class MilestoneRepositoryTest {
                 .build();
         milestoneRepository.save(milestone1);
 
-        List<Milestone> actual = milestoneRepository.findByProject_ProjectSeq(1L);
+        List<Milestone> actual = milestoneRepository.findByProject_ProjectSeq(project1.getProjectSeq());
         assertThat(actual).hasSize(1);
     }
 

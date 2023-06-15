@@ -1,6 +1,5 @@
 package com.nhnacademy.minidoorayprojectapi.domain.milestone.dto.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

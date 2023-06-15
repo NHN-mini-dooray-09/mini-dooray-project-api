@@ -1,6 +1,5 @@
 package com.nhnacademy.minidoorayprojectapi.domain.task.dao;
 
-import com.nhnacademy.minidoorayprojectapi.domain.tag.entity.Tag;
 import com.nhnacademy.minidoorayprojectapi.domain.task.entity.TaskTag;
 import org.springframework.data.jpa.repository.JpaRepository;
 

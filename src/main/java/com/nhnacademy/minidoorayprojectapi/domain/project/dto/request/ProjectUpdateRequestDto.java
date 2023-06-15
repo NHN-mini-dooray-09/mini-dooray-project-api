@@ -7,8 +7,6 @@ import com.nhnacademy.minidoorayprojectapi.domain.task.entity.Task;
 import lombok.Builder;
 import lombok.Getter;
 
-import javax.persistence.CascadeType;
-import javax.persistence.OneToMany;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;

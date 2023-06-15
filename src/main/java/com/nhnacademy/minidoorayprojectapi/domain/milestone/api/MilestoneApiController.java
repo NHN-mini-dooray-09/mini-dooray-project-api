@@ -23,8 +23,6 @@ public class MilestoneApiController {
         this.milestoneService = milestoneService;
     }
 
-    //TODO 프로젝트 권한(member,admin) 있는놈만 마일스톤 만들 수 있음
-    //TODO 인증 따로 만들어야 할 듯
     @GetMapping("/{project-seq}/milestones")
     public ResponseEntity<List<MilestoneDto>> getMilestones(@PathVariable("project-seq")Long projectSeq){
         return ResponseEntity.ok().body(milestoneService.getMilestonesByProjectSeq(projectSeq));
