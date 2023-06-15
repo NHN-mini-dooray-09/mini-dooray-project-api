@@ -1,7 +1,5 @@
 package com.nhnacademy.minidoorayprojectapi.domain.project.dto.request;
 
-import com.nhnacademy.minidoorayprojectapi.domain.milestone.entity.Milestone;
-import com.nhnacademy.minidoorayprojectapi.domain.project.entity.ProjectAuthority;
 import com.nhnacademy.minidoorayprojectapi.domain.tag.entity.Tag;
 import com.nhnacademy.minidoorayprojectapi.domain.task.entity.Task;
 import lombok.Builder;
@@ -20,12 +18,12 @@ public class ProjectUpdateRequestDto {
     private String projectDescription;
     @NotBlank
     private String projectStatus;
-    @NotNull
-    private List<Task> tasks;
-    @NotNull
-    private List<Tag> tags;
-    @NotNull
-    private List<Milestone> milestones;
-    @NotNull
-    private List<ProjectAuthority> projectMembers;
+//    @NotNull
+//    private List<Task> tasks;
+//    @NotNull
+//    private List<Tag> tags;
+//    @NotNull
+//    private List<Long> milestones;
+//    @NotNull
+//    private List<Long> projectMembers;
 }

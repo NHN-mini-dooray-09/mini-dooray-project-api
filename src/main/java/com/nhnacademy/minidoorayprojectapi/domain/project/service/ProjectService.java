@@ -108,8 +108,7 @@ public class ProjectService {
         }
 
         project.updateProject(projectRequest.getProjectName(), projectRequest.getProjectStatus(),
-                projectRequest.getProjectDescription(),projectRequest.getTasks(),projectRequest.getTags(),
-                projectRequest.getMilestones(),projectRequest.getProjectMembers());
+                projectRequest.getProjectDescription());
 
 
         return new ProjectSeqDto(project.getProjectSeq());

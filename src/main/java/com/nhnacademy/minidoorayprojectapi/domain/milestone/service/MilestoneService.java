@@ -30,9 +30,11 @@ public class MilestoneService {
      */
 
     public List<MilestoneDto> getMilestonesByProjectSeq(Long projectSeq){
-        Project project = projectRepository.findById(projectSeq)
-                .orElseThrow(() -> new ProjectNotFoundException("프토젝트를 찾을 수 없습니다."));
-        return convertToMilestoneDtoList(project.getMilestones());
+        if(!projectRepository.existsByProjectSeq(projectSeq)){
+            throw new ProjectNotFoundException("프토젝트를 찾을 수 없습니다.");
+        }
+        List<Milestone> milestones = milestoneRepository.findByProject_ProjectSeq(projectSeq);
+        return convertToMilestoneDtoList(milestones);
     }
 
     private List<MilestoneDto> convertToMilestoneDtoList(List<Milestone> milestones){

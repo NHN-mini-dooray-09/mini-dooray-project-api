@@ -50,15 +50,11 @@ public class Project {
         this.projectMembers = new ArrayList<>();
     }
 
-    public void updateProject(String projectName, String projectStatus, String projectDescription,
-                              List<Task> tasks, List<Tag> tags, List<Milestone> milestones, List<ProjectAuthority> projectMembers){
+    public void updateProject(String projectName, String projectStatus, String projectDescription){
         this.projectName = projectName;
         this.projectStatus = projectStatus;
         this.projectDescription = projectDescription;
-        this.tasks = tasks;
-        this.tags = tags;
-        this.milestones = milestones;
-        this.projectMembers = projectMembers;
+
     }
 
 

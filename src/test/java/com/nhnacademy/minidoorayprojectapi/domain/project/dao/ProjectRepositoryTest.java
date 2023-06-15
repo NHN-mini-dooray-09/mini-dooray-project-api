@@ -54,7 +54,7 @@ class ProjectRepositoryTest {
         projectRepository.save(project1);
         Project excepted = projectRepository.findById(project1.getProjectSeq())
                 .orElseThrow(() -> new ProjectNotFoundException("프로젝트 없음"));
-        excepted.updateProject("project1-change",null,null,null,null,null,null);
+        excepted.updateProject("project1-change",null,null);
 
         assertThat(excepted).isEqualTo(project1);
     }

@@ -1,5 +1,5 @@
 ### 프로젝트 - 전체 업무 조회
-GET localhost:8080/projects/1/task
+GET localhost:8080/projects/1/tasks
 
 ### 업무 조회
 GET localhost:8080/projects/1/1
@@ -12,13 +12,12 @@ Content-Type: application/json
   "taskTitle": "project1-task2",
   "taskContent": "할거 너무 많은데...?",
   "taskStatus": "활성",
-  "milestoneSeq": null,
   "tags": [1,2]
 }
 
 
 ### 업무 수정
-PATCH localhost:8080/projects/1/1
+PATCH localhost:8080/projects/1/1?member-seq=1
 Content-Type: application/json
 
 {
@@ -30,7 +29,7 @@ Content-Type: application/json
 }
 
 ### 업무 삭제
-DELETE localhost:8080/projects/1/1
+DELETE localhost:8080/projects/1/1?member-seq=1
 
 
 

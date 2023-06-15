@@ -146,7 +146,7 @@ public class TaskService {
                 taskUpdateRequest.getTaskStatus(),
                 milestoneRepository.findByProject_ProjectSeqAndMilestoneSeq(projectSeq,
                         taskUpdateRequest.getMilestoneSeq())
-                        .orElseThrow(() -> new ProjectNotFoundException("프로젝트를 찾을 수 없습니다.")),
+                        .orElseThrow(() -> new ProjectNotFoundException("마일스톤을 찾을 수 없습니다.")),
                         taskUpdateRequest.getTags().stream()
                         .map(tagSeq -> {
                             Tag tag = tagRepository.findByProject_ProjectSeqAndTagSeq(projectSeq,tagSeq)

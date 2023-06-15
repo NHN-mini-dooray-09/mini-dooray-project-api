@@ -132,10 +132,6 @@ class ProjectApiControllerTest {
                 .projectName("project-update-test")
                 .projectDescription("project controller update test")
                 .projectStatus("지연")
-                .tasks(new ArrayList<>())
-                .tags(new ArrayList<>())
-                .milestones(new ArrayList<>())
-                .projectMembers(new ArrayList<>())
                 .build();
 
         when(projectService.updateProject(any(),any(),any()))
