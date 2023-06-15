@@ -16,14 +16,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.is;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
@@ -67,7 +65,6 @@ class ProjectApiControllerTest {
 
     @Test
     void testCreateProject() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
 
         ProjectCreateRequestDto projectCreateRequest = ProjectCreateRequestDto.builder()
                 .projectName("project1")
@@ -135,10 +132,6 @@ class ProjectApiControllerTest {
                 .projectName("project-update-test")
                 .projectDescription("project controller update test")
                 .projectStatus("지연")
-                .tasks(new ArrayList<>())
-                .tags(new ArrayList<>())
-                .milestones(new ArrayList<>())
-                .projectMembers(new ArrayList<>())
                 .build();
 
         when(projectService.updateProject(any(),any(),any()))

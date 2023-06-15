@@ -10,6 +10,4 @@ import lombok.NoArgsConstructor;
 public class ProjectAuthorityDto {
     private Long memberSeq;
     private String projectAuthority;
-
-//    private Long projectSeq;
 }

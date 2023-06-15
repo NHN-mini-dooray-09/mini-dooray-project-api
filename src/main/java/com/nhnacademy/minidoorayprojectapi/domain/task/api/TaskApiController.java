@@ -26,21 +26,10 @@ public class TaskApiController {
         this.taskService = taskService;
     }
 
-    @GetMapping("/{project-seq}/task")
+    @GetMapping("/{project-seq}/tasks")
     public ResponseEntity<Page<TaskSeqNameAndMemberSeqDto>> getTasksInProject(@PageableDefault(size = 10, sort="taskSeq") Pageable pageable,
                                                                               @PathVariable("project-seq") Long projectSeq){
         return ResponseEntity.ok().body(taskService.getTasks(pageable, projectSeq));
-    }
-
-
-    @PostMapping("/{project-seq}")
-    public ResponseEntity<TaskSeqDto> createTask(@PathVariable("project-seq") Long projectSeq,
-                                                 @RequestParam("member-seq") Long memberSeq,
-                                                 @Valid @RequestBody TaskCreateRequestDto taskCreateRequest,
-                                                 BindingResult bindingResult){
-        TaskSeqDto taskSeq = taskService.createTask(projectSeq, memberSeq, taskCreateRequest);
-        return ResponseEntity.created(URI.create("/projects/"+projectSeq+"/"+taskSeq.getTaskSeq()))
-                .body(taskSeq);
     }
 
     @GetMapping("/{project-seq}/{task-seq}")
@@ -49,6 +38,20 @@ public class TaskApiController {
         return ResponseEntity.ok()
                 .body(taskService.getTask(projectSeq, taskSeq));
     }
+
+    @PostMapping("/{project-seq}")
+    public ResponseEntity<TaskSeqDto> createTask(@PathVariable("project-seq") Long projectSeq,
+                                                 @RequestParam("member-seq") Long memberSeq,
+                                                 @Valid @RequestBody TaskCreateRequestDto taskCreateRequest,
+                                                 BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
+            throw new ValidationFailedException(bindingResult);
+        }
+        TaskSeqDto taskSeq = taskService.createTask(projectSeq, memberSeq, taskCreateRequest);
+        return ResponseEntity.created(URI.create("/projects/"+projectSeq+"/"+taskSeq.getTaskSeq()))
+                .body(taskSeq);
+    }
+
 
     @PatchMapping("/{project-seq}/{task-seq}")
     public ResponseEntity<TaskSeqDto> updateTask(@PathVariable("project-seq") Long projectSeq,

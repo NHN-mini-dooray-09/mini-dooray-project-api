@@ -39,21 +39,27 @@ class MilestoneServiceTest {
 
     @Test
     void testGetMilestonesByProjectSeq() {
-        List<Milestone> milestones = new ArrayList<>(
-                Arrays.asList(Milestone.builder().build())
-        );
         Project project1 = Project.builder()
                 .build();
-        project1.updateProject(null,null,null,
-                null,null,milestones,null);
+        List<Milestone> milestones = Arrays.asList(
+                Milestone.builder()
+                        .project(project1)
+                        .build(),
+                Milestone.builder()
+                        .project(project1)
+                        .build()
+        );
 
-        when(projectRepository.findById(any()))
-                .thenReturn(Optional.ofNullable(project1));
+        when(projectRepository.existsByProjectSeq(any()))
+                .thenReturn(true);
+
+        when(milestoneRepository.findByProject_ProjectSeq(any()))
+                .thenReturn(milestones);
 
         List<MilestoneDto> result = milestoneService.getMilestonesByProjectSeq(any());
 
-        verify(projectRepository, times(1)).findById(any());
-        assertEquals(1,result.size());
+        verify(projectRepository, times(1)).existsByProjectSeq(any());
+        assertEquals(2,result.size());
     }
 
     @Test

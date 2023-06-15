@@ -1,7 +1,6 @@
 package com.nhnacademy.minidoorayprojectapi.domain.milestone.entity;
 
 import com.nhnacademy.minidoorayprojectapi.domain.project.entity.Project;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
