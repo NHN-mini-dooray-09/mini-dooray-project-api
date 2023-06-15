@@ -64,7 +64,8 @@ public class ProjectApiController {
         ProjectSeqDto seq = projectService.updateProject(projectSeq,
                 projectRequest,
                 memberSeq);
-        return ResponseEntity.created(URI.create("/project/"+seq)).body(seq);
+        return ResponseEntity.ok()
+                .body(seq);
     }
 
     @PostMapping("/{project-seq}/members")

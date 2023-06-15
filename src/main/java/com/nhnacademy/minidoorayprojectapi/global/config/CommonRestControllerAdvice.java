@@ -3,6 +3,7 @@ package com.nhnacademy.minidoorayprojectapi.global.config;
 import com.nhnacademy.minidoorayprojectapi.global.exception.ExceptionResponse;
 import com.nhnacademy.minidoorayprojectapi.global.exception.ProjectNotFoundException;
 import com.nhnacademy.minidoorayprojectapi.global.exception.AccessDeniedException;
+import com.nhnacademy.minidoorayprojectapi.global.exception.ValidationFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
@@ -30,6 +31,15 @@ public class CommonRestControllerAdvice {
     public ResponseEntity<ExceptionResponse> unauthorizedAccessError(RuntimeException exception){
         ExceptionResponse exceptionResponse = new ExceptionResponse(exception.getMessage(), HttpStatus.FORBIDDEN.value());
         return new ResponseEntity<>(exceptionResponse,HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler({
+        ValidationFailedException.class
+    })
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ExceptionResponse> badRequestError(Exception exception) {
+        ExceptionResponse exceptionResponse = new ExceptionResponse(exception.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return new ResponseEntity<>(exceptionResponse,HttpStatus.BAD_REQUEST);
     }
 
 
