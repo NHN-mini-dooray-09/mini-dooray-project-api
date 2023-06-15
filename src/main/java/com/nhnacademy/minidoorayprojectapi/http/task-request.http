@@ -1,9 +1,3 @@
-### 프로젝트 - 전체 업무 조회
-GET localhost:8080/projects/1/tasks
-
-### 업무 조회
-GET localhost:8080/projects/1/1
-
 ### 업무 생성
 POST localhost:8080/projects/1?member-seq=1
 Content-Type: application/json
@@ -15,6 +9,12 @@ Content-Type: application/json
   "tags": [1,2]
 }
 
+
+### 업무 조회
+GET localhost:8080/projects/1/2
+
+### 프로젝트 - 전체 업무 조회
+GET localhost:8080/projects/1/tasks
 
 ### 업무 수정
 PATCH localhost:8080/projects/1/1?member-seq=1

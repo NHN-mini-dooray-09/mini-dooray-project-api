@@ -1,7 +1,3 @@
-### 태그 조회
-GET localhost:8080/projects/1/tags
-
-
 ### 태그 생성
 POST localhost:8080/projects/1/tags
 Content-Type: application/json
@@ -9,6 +5,9 @@ Content-Type: application/json
 {
   "tagName": "tagName01"
 }
+
+### 태그 조회
+GET localhost:8080/projects/1/tags
 
 ### 태그 수정
 PATCH localhost:8080/projects/1/tags/1
